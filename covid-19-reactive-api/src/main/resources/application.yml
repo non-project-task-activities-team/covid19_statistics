@@ -1,0 +1,8 @@
+logging:
+  level:
+    web: TRACE
+spring:
+  rsocket:
+    server:
+      transport: tcp
+      port: 9898
