@@ -1,8 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import CountiesMap from './counties-map';
 import * as serviceWorker from './serviceWorker';
+
+function App() {
+  return (
+      <div>
+        <h1 className="title">COVID-19 statistics</h1>
+        <CountiesMap/>
+      </div>
+  );
+}
+
+export default App;
 
 ReactDOM.render(
   <React.StrictMode>
