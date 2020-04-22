@@ -1,6 +1,10 @@
 logging:
   level:
     web: TRACE
+    com:
+      covid19:
+        statistics:
+          api: TRACE
 spring:
   rsocket:
     server:

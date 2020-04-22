@@ -10,17 +10,50 @@ import {fromLonLat, toLonLat, transform} from 'ol/proj';
 import ReactDOM from 'react-dom';
 import Overlay from 'ol/Overlay';
 import {getCenter} from 'ol/extent';
+import {ApiRSocketClient} from './api-rsocket-client';
+import {Metadata} from './metadata'
 
-class PublicMap extends Component {
+class CountiesMap extends Component {
 
   constructor(props) {
     super(props);
-    this.centerCoordinates = [31.46120621875, 48.5480583823923];
-    this.showPopupInFeatureCenter = false;
-    this.popupIsShown = false;
     this.setMapRef = element => {
       this.mapRef = element;
     };
+    this.centerCoordinates = [31.46120621875, 48.5480583823923];
+    this.showPopupInFeatureCenter = false;
+    this.popupIsShown = false;
+
+    this.rSocketClient =
+        new ApiRSocketClient(
+            'ws://localhost:8080/rsocket',
+            new MapHandler(this.map)
+        );
+
+    // this.rSocketClient.connect()
+    //   .then(() =>
+    //       this.rSocketClient.fetchTotalCovid19Statistics(100)
+    //         .subscribe({
+    //             onSubscribe: sub => {
+    //               this.useSubscription(sub)
+    //             },
+    //             onNext: msg => {
+    //               console.log("onNext: ");
+    //               console.log(msg.data);
+    //             },
+    //             onError: error => {
+    //               console.error("onError: " + error);
+    //               console.dir(error);
+    //             }
+    //         })
+    //   )
+    //   .then(v => console.log(v));
+
+    this.rSocketClient.connect().then(() =>
+        this.rSocketClient.fetchTotalCovid19Statistics(100, function(msg) {
+          console.log(msg.data);
+        })
+    );
   }
 
   initPopup() {
@@ -83,7 +116,7 @@ class PublicMap extends Component {
       let coordinate;
       let pixel = self.countiesMap.getEventPixel(evt.originalEvent);
       let feature = self.countiesMap.forEachFeatureAtPixel(pixel, f => f);
-      if(!feature) {
+      if (!feature) {
         return;
       }
       self.highlightFeature(feature);
@@ -196,4 +229,19 @@ class PublicMap extends Component {
   }
 }
 
-export default PublicMap;
+class MapHandler {
+
+  constructor(map) {
+    this.map = map;
+  }
+
+  fireAndForget(payload) {
+    if(payload.metadata.get(Metadata.ROUTE) == "send.to.location") {
+      const radar = payload.data;
+      this.map.panTo([radar.location.lat, radar.location.lng]);
+    }
+  }
+
+}
+
+export default CountiesMap;

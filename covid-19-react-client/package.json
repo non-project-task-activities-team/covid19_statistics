@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "ol": "^6.3.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "rsocket-websocket-client": "0.0.10",
-    "ol": "^6.3.1"
+    "rsocket-core": "0.0.19",
+    "rsocket-websocket-client": "0.0.10"
   },
   "scripts": {
     "start": "react-scripts start",
