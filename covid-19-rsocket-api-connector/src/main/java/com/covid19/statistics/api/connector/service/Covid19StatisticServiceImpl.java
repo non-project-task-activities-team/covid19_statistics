@@ -1,8 +1,8 @@
 package com.covid19.statistics.api.connector.service;
 
+import com.covid19.statistics.api.connector.dto.Covid19StatisticTotal;
 import com.covid19.statistics.api.connector.dto.Covid19StatisticsByCountry;
 import com.covid19.statistics.api.connector.dto.Covid19StatisticsByCountryRequest;
-import com.covid19.statistics.api.connector.dto.TotalCovid19Statistic;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -31,12 +31,21 @@ public class Covid19StatisticServiceImpl implements Covid19StatisticService {
     }
 
     @Override
-    public Flux<TotalCovid19Statistic> getTotalCovid19Statistics(Integer max) {
+    public Flux<Covid19StatisticTotal> getCovid19StatisticTotal() {
         return
             this.requesterMono
                 .flatMapMany(req ->
                     req.route("covid19.statistics.total")
-                        .retrieveFlux(TotalCovid19Statistic.class))
+                        .retrieveFlux(Covid19StatisticTotal.class));
+    }
+
+    @Override
+    public Flux<Covid19StatisticTotal> streamCovid19StatisticTotal(Integer max) {
+        return
+            this.requesterMono
+                .flatMapMany(req ->
+                    req.route("covid19.statistics.total.stream")
+                        .retrieveFlux(Covid19StatisticTotal.class))
                 .take(max);
     }
 

@@ -9,5 +9,4 @@ public class RSocketApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RSocketApiApplication.class, args);
 	}
-
 }

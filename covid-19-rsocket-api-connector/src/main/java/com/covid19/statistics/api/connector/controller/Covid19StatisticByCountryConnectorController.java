@@ -3,8 +3,6 @@ package com.covid19.statistics.api.connector.controller;
 import com.covid19.statistics.api.connector.config.JsonMetadataStrategiesCustomizer;
 import com.covid19.statistics.api.connector.dto.Covid19StatisticsByCountry;
 import com.covid19.statistics.api.connector.dto.Covid19StatisticsByCountryRequest;
-import com.covid19.statistics.api.connector.dto.TotalCovid19Statistic;
-import com.covid19.statistics.api.connector.dto.TotalCovid19StatisticRequest;
 import com.covid19.statistics.api.connector.service.Covid19StatisticService;
 import java.util.Collections;
 import java.util.List;
@@ -23,21 +21,15 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Controller
-public class RSocketConnectorController {
+public class Covid19StatisticByCountryConnectorController {
 
     private final Covid19StatisticService covid19StatisticService;
     private final Queue<RSocketRequester> connectedClients;
 
-    public RSocketConnectorController(Covid19StatisticService covid19StatisticService) {
+    public Covid19StatisticByCountryConnectorController(
+        Covid19StatisticService covid19StatisticService) {
         this.covid19StatisticService = covid19StatisticService;
         this.connectedClients = new ConcurrentLinkedQueue<>();
-    }
-
-    @MessageMapping("covid19.statistics.total")
-    public Flux<TotalCovid19Statistic> getTotalCovid19Statistics(
-        TotalCovid19StatisticRequest request
-    ) {
-        return covid19StatisticService.getTotalCovid19Statistics(request.getMax());
     }
 
     @MessageMapping("covid19.statistics.by.countries")

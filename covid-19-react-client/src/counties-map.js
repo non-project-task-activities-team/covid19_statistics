@@ -48,12 +48,6 @@ class CountiesMap extends Component {
     //         })
     //   )
     //   .then(v => console.log(v));
-
-    this.rSocketClient.connect().then(() =>
-        this.rSocketClient.fetchTotalCovid19Statistics(100, function(msg) {
-          console.log(msg.data);
-        })
-    );
   }
 
   initPopup() {
@@ -133,6 +127,12 @@ class CountiesMap extends Component {
       popup.overlay.setPosition(coordinate);
       self.popupIsShown = true;
     });
+
+    this.rSocketClient.connect().then(() =>
+        this.rSocketClient.streamTotalCovid19Statistics(500, function(msg) {
+          console.log(msg.data);
+        })
+    );
   }
 
   highlightFeature(feature) {

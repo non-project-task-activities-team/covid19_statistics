@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 @Configuration
 public class MongoInitialFiller {
 
-    @Bean
+//    @Bean
     ApplicationRunner init(final Covid19StatisticsByCountryRepository repository) {
 
         final Object[][] data = {

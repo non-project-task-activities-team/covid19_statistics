@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface Covid19StatisticsByCountryRepository extends
-  ReactiveMongoRepository<Covid19StatisticsByCountry, UUID> {
+public interface Covid19StatisticsByCountryRepository
+    extends ReactiveMongoRepository<Covid19StatisticsByCountry, UUID> {
 
     Flux<Covid19StatisticsByCountry> findByCountryCodeIn(List<String> countryCodes);
 
