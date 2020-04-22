@@ -20,7 +20,7 @@ public class TestController {
     private final Covid19StatisticsByCountryRepository statisticsByCountryRepo;
 
     @Autowired
-    public RSocketController(
+    public TestController(
       final Covid19StatisticsTotalRepository statisticsTotalRepo,
       final Covid19StatisticsByCountryRepository statisticsByCountryRepo) {
         this.statisticsTotalRepo = statisticsTotalRepo;
