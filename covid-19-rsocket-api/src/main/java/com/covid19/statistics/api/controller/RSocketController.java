@@ -6,6 +6,7 @@ import com.covid19.statistics.api.dto.Covid19StatisticsByCountryRequest;
 import com.covid19.statistics.api.repository.Covid19StatisticsByCountryRepository;
 import com.covid19.statistics.api.repository.Covid19StatisticsTotalRepository;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
@@ -33,15 +34,18 @@ public class RSocketController {
 
     @MessageMapping("covid19.statistics.by.countries")
     public Flux<Covid19StatisticsByCountry> streamCovid19StatisticsByCountryCodes(
-      final List<Covid19StatisticsByCountryRequest> countriesCodes
+      final List<Covid19StatisticsByCountryRequest> countryCodes
     ) {
-        return statisticsByCountryRepo.getByCountryCode(countriesCodes);
+        List<String> codes = countryCodes.stream()
+          .map(Covid19StatisticsByCountryRequest::getCountryCode)
+          .collect(Collectors.toList());
+        return statisticsByCountryRepo.findByCountryCodeIn(codes);
     }
 
     @MessageMapping("covid19.statistics.by.country")
     public Mono<Covid19StatisticsByCountry> streamCovid19StatisticsByCountryCodes(
       final Covid19StatisticsByCountryRequest countryCode
     ) {
-        return statisticsByCountryRepo.getByCountryCode(countryCode);
+        return statisticsByCountryRepo.findByCountryCode(countryCode.getCountryCode());
     }
 }
