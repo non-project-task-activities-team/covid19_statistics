@@ -12,7 +12,7 @@ spring:
       port: 9898
   data:
     mongodb:
-#      authentication-database: admin
+      authentication-database: admin
 #      username: root
 #      password: root
       database: covid19_statistics
