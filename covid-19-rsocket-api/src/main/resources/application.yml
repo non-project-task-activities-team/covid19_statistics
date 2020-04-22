@@ -8,5 +8,9 @@ logging:
 spring:
   rsocket:
     server:
-      transport: tcp
+      transport: websocket
       port: 9898
+  data:
+    mongo:
+      repositories:
+        type: reactive
