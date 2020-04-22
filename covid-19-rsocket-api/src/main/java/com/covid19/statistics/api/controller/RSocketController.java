@@ -1,10 +1,12 @@
 package com.covid19.statistics.api.controller;
 
+import com.covid19.statistics.api.dto.Covid19StatisticTotal;
 import com.covid19.statistics.api.dto.Covid19StatisticsByCountry;
 import com.covid19.statistics.api.dto.Covid19StatisticsByCountryRequest;
-import com.covid19.statistics.api.dto.TotalCovid19Statistic;
-import com.covid19.statistics.api.repository.Covid19StatisticRepository;
+import com.covid19.statistics.api.repository.Covid19StatisticByCountryRepository;
+import com.covid19.statistics.api.repository.Covid19StatisticTotalRepository;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
@@ -13,28 +15,33 @@ import reactor.core.publisher.Mono;
 @Controller
 public class RSocketController {
 
-    private final Covid19StatisticRepository covid19StatisticRepository;
+    private final Covid19StatisticTotalRepository statisticTotalRepo;
+    private final Covid19StatisticByCountryRepository statisticByCountryRepo;
 
-    public RSocketController(final Covid19StatisticRepository covid19StatisticRepository) {
-        this.covid19StatisticRepository = covid19StatisticRepository;
+    @Autowired
+    public RSocketController(
+      final Covid19StatisticTotalRepository statisticTotalRepo,
+      final Covid19StatisticByCountryRepository statisticByCountryRepo) {
+        this.statisticTotalRepo = statisticTotalRepo;
+        this.statisticByCountryRepo = statisticByCountryRepo;
     }
 
     @MessageMapping("covid19.statistics.total")
-    public Flux<TotalCovid19Statistic> getTotalCovid19Statistics() {
-        return covid19StatisticRepository.getTotalCovid19Statistics();
+    public Flux<Covid19StatisticTotal> getTotalCovid19Statistics() {
+        return statisticTotalRepo.findAll();
     }
 
     @MessageMapping("covid19.statistics.by.countries")
-    public Flux<Covid19StatisticsByCountry> streamCovid19StatisticsByCountriesCodes(
-        List<Covid19StatisticsByCountryRequest> countriesCodes
+    public Flux<Covid19StatisticsByCountry> streamCovid19StatisticsByCountryCodes(
+      final List<Covid19StatisticsByCountryRequest> countriesCodes
     ) {
-        return covid19StatisticRepository.getFindCovid19StatisticsByCountriesCodes(countriesCodes);
+        return statisticByCountryRepo.getByCountryCode(countriesCodes);
     }
 
     @MessageMapping("covid19.statistics.by.country")
-    public Mono<Covid19StatisticsByCountry> streamCovid19StatisticsByCountriesCodes(
-        Covid19StatisticsByCountryRequest countryCode
+    public Mono<Covid19StatisticsByCountry> streamCovid19StatisticsByCountryCodes(
+      final Covid19StatisticsByCountryRequest countryCode
     ) {
-        return covid19StatisticRepository.findCovid19StatisticsByCountryCode(countryCode);
+        return statisticByCountryRepo.getByCountryCode(countryCode);
     }
 }
