@@ -6,23 +6,23 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>spring-boot-maven-plugin</artifactId>
         <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-rsocket</artifactId>
-      <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
-      <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
-      <artifactId>spring-boot-devtools</artifactId>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
       <optional>true</optional>
       <scope>runtime</scope>
     </dependency>
@@ -30,46 +30,46 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <exclusions>
         <exclusion>
-          <artifactId>junit-vintage-engine</artifactId>
           <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
         </exclusion>
       </exclusions>
       <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
     </dependency>
     <dependency>
-      <artifactId>de.flapdoodle.embed.mongo</artifactId>
       <groupId>de.flapdoodle.embed</groupId>
+      <artifactId>de.flapdoodle.embed.mongo</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <artifactId>reactor-test</artifactId>
       <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <artifactId>lombok</artifactId>
       <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
       <scope>provided</scope>
       <version>${lombok.version}</version>
     </dependency>
     <dependency>
-      <artifactId>reactor-test</artifactId>
       <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-test</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <groupId>com.covid19.statistics.api</groupId>
 
+  <groupId>com.covid19.statistics.api</groupId>
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
     <relativePath/>
     <version>2.2.6.RELEASE</version>
   </parent>
