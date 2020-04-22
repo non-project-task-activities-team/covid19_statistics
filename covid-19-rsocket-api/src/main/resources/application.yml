@@ -13,8 +13,8 @@ spring:
   data:
     mongodb:
       authentication-database: admin
-#      username: root
-#      password: root
+      username: root
+      password: abc123
       database: covid19_statistics
       port: 27017
       host: localhost
