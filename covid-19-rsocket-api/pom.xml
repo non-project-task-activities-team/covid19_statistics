@@ -1,24 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.6.RELEASE</version>
-    <relativePath/>
-  </parent>
-  <groupId>com.covid19.statistics.api</groupId>
   <artifactId>covid-19-rsocket-api</artifactId>
-  <version>1.0-SNAPSHOT</version>
-
-  <properties>
-    <java.version>11</java.version>
-    <lombok.version>1.18.12</lombok.version>
-    <webflux.version>2.2.6.RELEASE</webflux.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <artifactId>spring-boot-starter-rsocket</artifactId>
@@ -27,7 +11,6 @@
     <dependency>
       <artifactId>spring-boot-starter-webflux</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>${webflux.version}</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-devtools</artifactId>
@@ -67,18 +50,34 @@
       <version>${lombok.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
+      <groupId>io.projectreactor</groupId>
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <groupId>com.covid19.statistics.api</groupId>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <relativePath/>
+    <version>2.2.6.RELEASE</version>
+  </parent>
+
+  <properties>
+    <java.version>11</java.version>
+    <lombok.version>1.18.12</lombok.version>
+  </properties>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <groupId>org.springframework.boot</groupId>
       </plugin>
     </plugins>
   </build>
+
+  <version>1.0-SNAPSHOT</version>
 </project>
