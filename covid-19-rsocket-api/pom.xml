@@ -3,6 +3,14 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>covid-19-rsocket-api</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <groupId>org.springframework.boot</groupId>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
       <artifactId>spring-boot-starter-rsocket</artifactId>
@@ -56,6 +64,7 @@
     </dependency>
   </dependencies>
   <groupId>com.covid19.statistics.api</groupId>
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -69,15 +78,6 @@
     <java.version>11</java.version>
     <lombok.version>1.18.12</lombok.version>
   </properties>
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <groupId>org.springframework.boot</groupId>
-      </plugin>
-    </plugins>
-  </build>
 
   <version>1.0-SNAPSHOT</version>
 </project>
