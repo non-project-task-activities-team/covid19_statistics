@@ -1,5 +1,6 @@
 package com.covid19.statistics.api.dto;
 
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class Covid19StatisticsByCountry {
     private Integer totalConfirmed;
     private Integer totalDeaths;
     private Integer totalRecovered;
+    private Date date;
 }
