@@ -1,5 +1,8 @@
 package com.demo.kafka;
 
+import com.demo.kafka.models.Country;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -7,13 +10,17 @@ import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.TimeWindows;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.support.serializer.JsonSerde;
 
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SpringBootApplication
@@ -41,6 +48,20 @@ public class KafkaTopologyApplication {
                     .toStream()
                     .map((key, value) -> new KeyValue<>(null, new WordCount(key.key(), value, new Date(key.window().start()),
 							new Date(key.window().end()))));
+        }
+
+        @Bean
+        public Consumer<KStream<String, Country>> aggregate() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Serde<Country> countrySerde = new JsonSerde<>(Country.class, objectMapper);
+
+            return input -> input
+                    .groupBy((s, country) -> country.getCountryCode(), Grouped.with(null, countrySerde))
+                    .aggregate(String::new,
+                            (s, country, board) -> board.concat(country.getConfirmed()),
+                            Materialized.<String, String, KeyValueStore<Bytes, byte[]>>as("test-countries")
+                    .withKeySerde(Serdes.String())
+                    .withValueSerde(Serdes.String()));
         }
     }
 
