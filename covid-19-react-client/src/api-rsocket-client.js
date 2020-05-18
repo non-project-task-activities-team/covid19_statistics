@@ -59,10 +59,25 @@ export class ApiRSocketClient {
             onNext(msg);
             statistics.push(msg.data);
           },
-          // onNext: onNext,
           onComplete: () => resolve(statistics)
         });
       }));
+  }
+
+  getMaxTotalCovid19Statistics(onComplete) {
+    return new Promise(((resolve, reject) => {
+      let metadata = new Metadata();
+      metadata.set(Metadata.ROUTE, 'covid19.statistics.total.max');
+      return this.socket.requestResponse({
+        metadata: metadata,
+      }).subscribe({
+        onError: error => reject(error),
+        onComplete: data => {
+          onComplete(data);
+          return resolve(data);
+        }
+      });
+    }));
   }
 
   disconnect() {

@@ -11,6 +11,7 @@ import ReactDOM from 'react-dom';
 import Overlay from 'ol/Overlay';
 import {getCenter} from 'ol/extent';
 import {ApiRSocketClient} from './api-rsocket-client';
+import {MapUtils} from './map-utils';
 import {Metadata} from './metadata'
 
 class CountiesMap extends Component {
@@ -23,6 +24,7 @@ class CountiesMap extends Component {
     this.centerCoordinates = [31.46120621875, 48.5480583823923];
     this.showPopupInFeatureCenter = false;
     this.popupIsShown = false;
+    this.mapIsReady = false;
 
     this.rSocketClient =
         new ApiRSocketClient(
@@ -83,8 +85,15 @@ class CountiesMap extends Component {
     let self = this;
     let popup = this.initPopup();
 
+    self.rSocketClient.connect().then(() =>
+        self.rSocketClient.getMaxTotalCovid19Statistics(function (data) {
+          self.maxTotalConfirmed = data.data.totalConfirmed;
+        })
+    )
+
+    self.countriesVectorLayer = self.getCountriesVectorLayer();
     self.countiesMap = new Map({
-      layers: [self.getCountriesVectorLayer()],
+      layers: [self.countriesVectorLayer],
       overlays: [popup.overlay],
       target: ReactDOM.findDOMNode(this.mapRef),
       view: new View({
@@ -96,7 +105,6 @@ class CountiesMap extends Component {
     });
 
     self.featureOverlay = self.getCountriesOverlayVectorLayer();
-
     self.countiesMap.on('pointermove', function (evt) {
       if (evt.dragging || self.popupIsShown) {
         return;
@@ -128,11 +136,19 @@ class CountiesMap extends Component {
       self.popupIsShown = true;
     });
 
-    this.rSocketClient.connect().then(() =>
-        this.rSocketClient.streamTotalCovid19Statistics(500, function(msg) {
-          console.log(msg.data);
-        })
-    );
+    self.countriesVectorLayer.getSource().on("change", function(e) {
+      if(self.countriesVectorLayer.getSource().getState() === "ready" && !self.mapIsReady) {
+        let features = self.countriesVectorLayer.getSource().getFeatures();
+        self.rSocketClient.streamTotalCovid19Statistics(500, function (msg) {
+          features.filter(feature => feature.get("iso_a2") === msg.data.countryCode)
+            .forEach(feature => {
+              feature.server_data = msg.data;
+              feature.setStyle(self.getFeatureStyle(feature));
+            });
+        });
+        self.mapIsReady = true;
+      }
+    });
   }
 
   highlightFeature(feature) {
@@ -164,69 +180,89 @@ class CountiesMap extends Component {
     return transform(center, 'EPSG:3857', 'EPSG:4326');
   }
 
-  getCountriesOverlayVectorLayer() {
-    let style = new Style({
-      stroke: new Stroke({
-        color: '#f00',
-        width: 1
-      }),
-      fill: new Fill({
-        color: 'rgba(255,0,0,0.1)'
-      }),
-      text: new Text({
-        font: '12px Calibri,sans-serif',
-        fill: new Fill({
-          color: '#000'
-        }),
-        stroke: new Stroke({
-          color: '#f00',
-          width: 3
-        })
-      })
+  getCountriesVectorLayer() {
+    let self = this;
+    let source = new VectorSource({
+      url: 'counties.geo.json',
+      format: new GeoJSON()
     });
-
     return new VectorLayer({
-      source: new VectorSource(),
-      map: this.countiesMap,
+      source: source,
       style: function (feature) {
-        style.getText().setText(feature.get('name'));
-        return style;
+        return self.getFeatureStyle(feature);
       }
     });
   }
 
-  getCountriesVectorLayer() {
-    let style = new Style({
+  getCountriesOverlayVectorLayer() {
+    let self = this;
+    return new VectorLayer({
+      source: new VectorSource(),
+      map: this.countiesMap,
+      style: function (feature) {
+        return self.getHighlightedFeatureStyle(feature);
+      }
+    });
+  }
+
+  getFeatureStyle(feature) {
+    let data = feature.server_data;
+    let totalConfirmed = data === undefined ? 0 : data.totalConfirmed;
+    let opacity = 0.4;
+
+    return new Style({
       fill: new Fill({
-        color: 'rgba(255, 100, 100, 0.3)'
+        color: MapUtils.calculateColor(this.maxTotalConfirmed, totalConfirmed, opacity)
       }),
       stroke: new Stroke({
-        color: 'rgba(255, 80, 80, 0.9)',
+        color: 'rgba(0, 0, 0, 0.5)',
         width: 2
       }),
       text: new Text({
-        font: '12px Calibri,sans-serif',
+        text: feature.get('name'),
+        font: '14px Calibri,sans-serif',
         fill: new Fill({
           color: '#000'
         }),
         stroke: new Stroke({
           color: '#fff',
-          width: 3
+          width: 2
         })
       })
     });
+  }
 
-    return new VectorLayer({
-      source: new VectorSource({
-        url: 'counties.geo.json',
-        format: new GeoJSON()
+  getHighlightedFeatureStyle(feature) {
+    let data = feature.server_data;
+    let totalConfirmed = data === undefined ? 0 : data.totalConfirmed;
+    let opacity = 0.5;
+    return new Style({
+      stroke: new Stroke({
+        color: 'rgba(0, 0, 0, 1)',
+        width: 1
       }),
-      style: function (feature) {
-        style.getText().setText(feature.get('name'));
-        return style;
-      }
+      fill: new Fill({
+        color:
+            MapUtils.calculateColor(
+                this.maxTotalConfirmed,
+                totalConfirmed,
+                opacity
+            )
+      }),
+      text: new Text({
+        text: feature.get('name'),
+        font: '14px Calibri,sans-serif',
+        fill: new Fill({
+          color: '#000'
+        }),
+        stroke: new Stroke({
+          color: '#fff',
+          width: 2
+        })
+      })
     });
   }
+
 }
 
 class MapHandler {

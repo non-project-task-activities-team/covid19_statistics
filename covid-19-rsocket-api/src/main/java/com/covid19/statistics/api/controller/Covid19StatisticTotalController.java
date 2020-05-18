@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.ChangeStreamEvent;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Controller
 public class Covid19StatisticTotalController {
@@ -20,6 +21,11 @@ public class Covid19StatisticTotalController {
         final Covid19StatisticsTotalService covid19StatisticsTotalService
     ) {
         this.covid19StatisticsTotalService = covid19StatisticsTotalService;
+    }
+
+    @MessageMapping("covid19.statistics.total.max")
+    public Mono<Covid19StatisticTotal> getMaxCovid19StatisticTotal() {
+        return covid19StatisticsTotalService.findFirstByOrderByTotalConfirmedDesc();
     }
 
     @MessageMapping("covid19.statistics.total")

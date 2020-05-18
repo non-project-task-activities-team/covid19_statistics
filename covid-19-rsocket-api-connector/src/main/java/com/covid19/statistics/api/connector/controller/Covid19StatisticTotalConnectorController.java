@@ -6,6 +6,7 @@ import com.covid19.statistics.api.connector.service.Covid19StatisticService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Controller
 public class Covid19StatisticTotalConnectorController {
@@ -21,6 +22,11 @@ public class Covid19StatisticTotalConnectorController {
     @MessageMapping("covid19.statistics.total")
     public Flux<Covid19StatisticTotal> getCovid19StatisticTotals() {
         return covid19StatisticService.getCovid19StatisticTotal();
+    }
+
+    @MessageMapping("covid19.statistics.total.max")
+    public Mono<Covid19StatisticTotal> getMaxCovid19StatisticTotal() {
+        return covid19StatisticService.getMaxCovid19StatisticTotal();
     }
 
     @MessageMapping("covid19.statistics.total.stream")

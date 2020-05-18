@@ -11,6 +11,8 @@ public interface Covid19StatisticService {
 
     Flux<Covid19StatisticTotal> getCovid19StatisticTotal();
 
+    Mono<Covid19StatisticTotal> getMaxCovid19StatisticTotal();
+
     Flux<Covid19StatisticTotal> streamCovid19StatisticTotal(Integer max);
 
     Flux<Covid19StatisticsByCountry> streamCovid19StatisticsByCountriesCodes(

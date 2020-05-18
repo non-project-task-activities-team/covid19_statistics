@@ -40,6 +40,16 @@ public class Covid19StatisticServiceImpl implements Covid19StatisticService {
     }
 
     @Override
+    public Mono<Covid19StatisticTotal> getMaxCovid19StatisticTotal() {
+        return
+            this.requesterMono
+                .flatMap(req ->
+                    req.route("covid19.statistics.total.max")
+                        .retrieveMono(Covid19StatisticTotal.class)
+                );
+    }
+
+    @Override
     public Flux<Covid19StatisticTotal> streamCovid19StatisticTotal(Integer max) {
         return
             this.requesterMono

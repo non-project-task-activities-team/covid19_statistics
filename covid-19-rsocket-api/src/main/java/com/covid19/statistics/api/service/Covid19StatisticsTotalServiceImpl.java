@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class Covid19StatisticsTotalServiceImpl implements Covid19StatisticsTotalService {
@@ -33,6 +34,11 @@ public class Covid19StatisticsTotalServiceImpl implements Covid19StatisticsTotal
     @Override
     public Flux<Covid19StatisticTotal> findAll() {
         return covid19StatisticsTotalRepository.findAll();
+    }
+
+    @Override
+    public Mono<Covid19StatisticTotal> findFirstByOrderByTotalConfirmedDesc() {
+        return covid19StatisticsTotalRepository.findFirstByOrderByTotalConfirmedDesc();
     }
 
     @Override

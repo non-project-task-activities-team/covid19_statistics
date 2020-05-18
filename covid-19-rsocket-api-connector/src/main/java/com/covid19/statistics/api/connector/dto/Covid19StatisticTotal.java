@@ -1,5 +1,6 @@
 package com.covid19.statistics.api.connector.dto;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,4 +20,5 @@ public class Covid19StatisticTotal {
     private Integer totalConfirmed;
     private Integer totalDeaths;
     private Integer totalRecovered;
+    private LocalDateTime lastModifiedAt;
 }
