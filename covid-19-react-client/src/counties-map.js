@@ -131,14 +131,29 @@ class CountiesMap extends Component {
       }
       if(feature.server_data !== undefined) {
         popup.content.innerHTML =
-            '<h3 class="ol-popup-title"><strong>' + feature.get("name")
-            + '</strong></h3>' +
-            '<p><code>' + toLonLat(coordinate) + '</code></p>';
+            '<h3 class="ol-popup-title"><strong>' + feature.get("name") + '</strong></h3>' +
+            '<table style="width:100%">' +
+              '<tr class="table-warning">' +
+                '<td>confirmed</td>' +
+                '<td>' + feature.server_data.totalConfirmed + '</td>' +
+              '</tr>' +
+              '<tr class="table-danger">' +
+                '<td>deaths</td>' +
+                '<td>' + feature.server_data.totalDeaths + '</td>' +
+              '</tr>' +
+              '<tr class="table-success">' +
+                '<td>recovered</td>' +
+                '<td>' + feature.server_data.totalRecovered + '</td>' +
+              '</tr>' +
+            '</table>';
       } else {
         popup.content.innerHTML =
-            '<h3 class="ol-popup-title"><strong>' + feature.get("name")
-            + '</strong></h3>' +
-            '<p><code>There is no information</code></p>';
+            '<h3 class="ol-popup-title">' +
+              '<strong>' + feature.get("name") + '</strong>' +
+            '</h3>' +
+            '<div class="alert alert-dark" role="alert">' +
+              'There is no information!' +
+            '</div>';
       }
 
       popup.overlay.setPosition(coordinate);
