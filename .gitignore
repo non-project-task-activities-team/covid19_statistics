@@ -26,9 +26,32 @@ HELP.md
 /nbdist/
 /.nb-gradle/
 build/
+# target
+target
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
 
 ### VS Code ###
 .vscode/
 
 ### NodeJS ###
 node_modules/
+
+# GCP service account key
+gcp-credentials.json
+
+# GCP ignore file
+.gcloudignore
+
+# XML
+*.xml
+
+#iml
+*.iml
+
+# IntellijIdea files
+*.idea
+
+# DS_Store
+.DS_Store

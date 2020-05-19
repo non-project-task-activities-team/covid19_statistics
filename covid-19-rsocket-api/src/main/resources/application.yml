@@ -10,3 +10,13 @@ spring:
     server:
       transport: tcp
       port: 9898
+  data:
+    mongodb:
+      authentication-database: admin
+      username: root
+      password: root
+      database: covid19_statistics
+      port: 40000
+      host: localhost
+      repositories:
+        type: reactive
