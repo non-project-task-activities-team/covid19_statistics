@@ -88,6 +88,7 @@ class CountiesMap extends Component {
     self.rSocketClient.connect().then(() =>
         self.rSocketClient.getMaxTotalCovid19Statistics(function (data) {
           self.maxTotalConfirmed = data.data.totalConfirmed;
+          console.log("Current max total confirmed: " + self.maxTotalConfirmed);
         })
     )
 
@@ -128,10 +129,18 @@ class CountiesMap extends Component {
       } else {
         coordinate = evt.coordinate;
       }
-      popup.content.innerHTML =
-          '<h3 class="ol-popup-title"><strong>' + feature.get("name")
-          + '</strong></h3>' +
-          '<p><code>' + toLonLat(coordinate) + '</code></p>';
+      if(feature.server_data !== undefined) {
+        popup.content.innerHTML =
+            '<h3 class="ol-popup-title"><strong>' + feature.get("name")
+            + '</strong></h3>' +
+            '<p><code>' + toLonLat(coordinate) + '</code></p>';
+      } else {
+        popup.content.innerHTML =
+            '<h3 class="ol-popup-title"><strong>' + feature.get("name")
+            + '</strong></h3>' +
+            '<p><code>There is no information</code></p>';
+      }
+
       popup.overlay.setPosition(coordinate);
       self.popupIsShown = true;
     });
@@ -139,10 +148,18 @@ class CountiesMap extends Component {
     self.countriesVectorLayer.getSource().on("change", function(e) {
       if(self.countriesVectorLayer.getSource().getState() === "ready" && !self.mapIsReady) {
         let features = self.countriesVectorLayer.getSource().getFeatures();
-        self.rSocketClient.streamTotalCovid19Statistics(500, function (msg) {
+        self.rSocketClient.streamTotalCovid19Statistics(1000, function (msg) {
+          console.log(msg.data);
           features.filter(feature => feature.get("iso_a2") === msg.data.countryCode)
             .forEach(feature => {
               feature.server_data = msg.data;
+              if(self.maxTotalConfirmed < msg.data.totalConfirmed) {
+                self.maxTotalConfirmed = msg.data.totalConfirmed;
+                console.log("New max total confirmed: " + self.maxTotalConfirmed);
+                features.forEach(feature => {
+                  feature.setStyle(self.getFeatureStyle(feature));
+                });
+              }
               feature.setStyle(self.getFeatureStyle(feature));
             });
         });
@@ -207,8 +224,14 @@ class CountiesMap extends Component {
 
   getFeatureStyle(feature) {
     let data = feature.server_data;
-    let totalConfirmed = data === undefined ? 0 : data.totalConfirmed;
+    let totalConfirmed = 0;
     let opacity = 0.4;
+    let title = feature.get('name');
+
+    if(data !== undefined) {
+      totalConfirmed = data.totalConfirmed;
+      title += '\n' + data.totalConfirmed;
+    }
 
     return new Style({
       fill: new Fill({
@@ -219,7 +242,7 @@ class CountiesMap extends Component {
         width: 2
       }),
       text: new Text({
-        text: feature.get('name'),
+        text: title,
         font: '14px Calibri,sans-serif',
         fill: new Fill({
           color: '#000'
