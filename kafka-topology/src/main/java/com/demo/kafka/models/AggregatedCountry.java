@@ -5,13 +5,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Country {
+public class AggregatedCountry {
+
+    private String country;
     private String countryCode;
-    private Integer confirmed;
-    private String recovered;
-    private String death;
+    private Integer totalConfirmed;
+    private String totalRecovered;
+    private List<DailyStatistics> dailyStatistics;
 }

@@ -9,9 +9,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Country {
-    private String countryCode;
-    private Integer confirmed;
+public class DailyStatistics {
+    private String date;
+    private String confirmed;
     private String recovered;
     private String death;
 }

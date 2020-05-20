@@ -1,16 +1,17 @@
 package com.demo.kafka;
 
+import com.demo.kafka.models.AggregatedCountry;
 import com.demo.kafka.models.Country;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.TimeWindows;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.Stores;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@Slf4j
 @SpringBootApplication
 public class KafkaTopologyApplication {
 
@@ -32,7 +34,7 @@ public class KafkaTopologyApplication {
 
     public static class WordCountProcessorApplication {
 
-        public static final String INPUT_TOPIC = "input";
+        public static final String INPUT_TOPIC = "countries";
         public static final String OUTPUT_TOPIC = "output";
         public static final int WINDOW_SIZE_MS = 30000;
 
@@ -51,9 +53,14 @@ public class KafkaTopologyApplication {
         }
 
         @Bean
-        public Consumer<KStream<String, Country>> aggregate() {
+        public KStream<String, Country> aggregate(StreamsBuilder streamsBuilder) {
             ObjectMapper objectMapper = new ObjectMapper();
+
             Serde<Country> countrySerde = new JsonSerde<>(Country.class, objectMapper);
+
+            Consumed<String, Country> countryConsumed = Consumed.with(Serdes.String(), countrySerde);
+            streamsBuilder.stream(INPUT_TOPIC, countryConsumed).groupByKey();
+
 
             return input -> input
                     .groupBy((s, country) -> country.getCountryCode(), Grouped.with(null, countrySerde))
@@ -63,6 +70,26 @@ public class KafkaTopologyApplication {
                     .withKeySerde(Serdes.String())
                     .withValueSerde(Serdes.String()));
         }
+    }
+
+    private KStream<String, AggregatedCountry> aggregate(KGroupedStream<String, Country> countries) {
+        return countries.aggregate(0, this::aggregateAmount, materializedAsPersistentStore())
+                .toStream()
+                .mapValues(AggregatedCountry::new);
+    }
+
+    private Integer aggregateAmount(String key, Country country, Integer aggregatedAmount) {
+        return aggregatedAmount + country.getConfirmed();
+    }
+
+    private <K, V> Materialized<K, V, KeyValueStore<Bytes, byte[]>> materializedAsPersistentStore(
+            String storeName,
+            Serde<K> keySerde,
+            Serde<V> valueSerde
+    ) {
+        return Materialized.<K, V>as(Stores.persistentKeyValueStore(storeName))
+                .withKeySerde(keySerde)
+                .withValueSerde(valueSerde);
     }
 
     static class WordCount {
