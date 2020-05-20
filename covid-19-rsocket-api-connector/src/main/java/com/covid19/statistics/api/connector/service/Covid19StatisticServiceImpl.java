@@ -3,6 +3,7 @@ package com.covid19.statistics.api.connector.service;
 import com.covid19.statistics.api.connector.dto.Covid19StatisticTotal;
 import com.covid19.statistics.api.connector.dto.Covid19StatisticsByCountry;
 import com.covid19.statistics.api.connector.dto.Covid19StatisticsByCountryRequest;
+import java.time.Duration;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -27,7 +28,7 @@ public class Covid19StatisticServiceImpl implements Covid19StatisticService {
                 .dataMimeType(MediaType.APPLICATION_CBOR)
                 .connectTcp(apiRSocketTcpHost, apiRSocketTcpPort)
                 .retry(apiRSocketTcpRetry)
-                .cache();
+                .cache(Duration.ofSeconds(1));
     }
 
     @Override

@@ -5,6 +5,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.newA
 import com.covid19.statistics.api.dto.Covid19StatisticTotal;
 import com.covid19.statistics.api.repository.Covid19StatisticsTotalRepository;
 import com.mongodb.client.model.changestream.OperationType;
+import java.time.Duration;
 import java.util.stream.Stream;
 import org.springframework.data.mongodb.core.ChangeStreamEvent;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -62,7 +63,8 @@ public class Covid19StatisticsTotalServiceImpl implements Covid19StatisticsTotal
             reactiveMongoTemplate.changeStream(Covid19StatisticTotal.class)
                 .watchCollection(Covid19StatisticTotal.class)
                 .filter(aggregation)
-                .listen();
+                .listen()
+                .cache(Duration.ofSeconds(1));
     }
 
     private Criteria buildCriteria(OperationType operationType) {
