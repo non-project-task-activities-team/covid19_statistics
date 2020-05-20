@@ -24,7 +24,8 @@ code {
 #map {
   height: 580px;
   width: 90%;
-  margin: 30px auto;
+  margin: 5px auto;
+  margin-bottom: 50px;
   border: 2px rgba(0,0,0,0.3) solid;
   border-radius: 5px;
 }

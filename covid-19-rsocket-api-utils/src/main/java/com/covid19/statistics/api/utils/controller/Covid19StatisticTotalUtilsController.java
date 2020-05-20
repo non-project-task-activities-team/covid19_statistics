@@ -57,7 +57,7 @@ public class Covid19StatisticTotalUtilsController {
         @Valid @RequestBody Covid19StatisticTotal covid19StatisticTotal
     ) {
         covid19StatisticTotal.setId(UUID.randomUUID());
-        covid19StatisticTotal.setLastModifiedAt(LocalDateTime.now());
+        covid19StatisticTotal.setTimestamp(LocalDateTime.now());
         return covid19StatisticTotalRepository.save(covid19StatisticTotal);
     }
 
@@ -68,7 +68,7 @@ public class Covid19StatisticTotalUtilsController {
         List<Covid19StatisticTotal> covid19StatisticTotalsList = covid19StatisticTotals.getData();
         covid19StatisticTotalsList.forEach(s -> {
             s.setId(UUID.randomUUID());
-            s.setLastModifiedAt(LocalDateTime.now());
+            s.setTimestamp(LocalDateTime.now());
         });
         return covid19StatisticTotalRepository.saveAll(covid19StatisticTotalsList);
     }
@@ -79,7 +79,7 @@ public class Covid19StatisticTotalUtilsController {
         @Valid @RequestBody Covid19StatisticTotal covid19StatisticTotal
     ) {
         covid19StatisticTotal.setId(id);
-        covid19StatisticTotal.setLastModifiedAt(LocalDateTime.now());
+        covid19StatisticTotal.setTimestamp(LocalDateTime.now());
         return covid19StatisticTotalRepository.save(covid19StatisticTotal);
     }
 

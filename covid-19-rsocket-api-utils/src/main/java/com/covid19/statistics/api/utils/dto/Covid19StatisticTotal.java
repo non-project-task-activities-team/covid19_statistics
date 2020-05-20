@@ -26,5 +26,5 @@ public class Covid19StatisticTotal {
     private Integer totalConfirmed;
     private Integer totalDeaths;
     private Integer totalRecovered;
-    private LocalDateTime lastModifiedAt;
+    private LocalDateTime timestamp;
 }
