@@ -151,7 +151,7 @@ class CountiesMap extends Component {
             '<h3 class="ol-popup-title">' +
               '<strong>' + feature.get("name") + '</strong>' +
             '</h3>' +
-            '<div class="alert alert-dark" role="alert">' +
+            '<div class="alert alert-secondary" role="alert">' +
               'There is no information!' +
             '</div>';
       }
