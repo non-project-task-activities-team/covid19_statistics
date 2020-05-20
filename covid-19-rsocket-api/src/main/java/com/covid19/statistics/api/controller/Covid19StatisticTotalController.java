@@ -35,8 +35,7 @@ public class Covid19StatisticTotalController {
 
     @MessageMapping("covid19.statistics.total.stream")
     public Flux<Covid19StatisticTotal> streamCovid19StatisticTotals() {
-        Flux<Covid19StatisticTotal> totalFlux =
-            covid19StatisticsTotalService.findAll();
+        Flux<Covid19StatisticTotal> totalFlux = covid19StatisticsTotalService.findAll();
 
         Flux<ChangeStreamEvent<Covid19StatisticTotal>> totalFluxStreaming =
             covid19StatisticsTotalService.streamCollectionUpdates(INSERT, UPDATE, REPLACE);

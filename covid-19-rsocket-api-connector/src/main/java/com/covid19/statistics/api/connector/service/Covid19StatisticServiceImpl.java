@@ -1,10 +1,8 @@
 package com.covid19.statistics.api.connector.service;
 
 import com.covid19.statistics.api.connector.dto.Covid19StatisticTotal;
-import com.covid19.statistics.api.connector.dto.Covid19StatisticsByCountry;
-import com.covid19.statistics.api.connector.dto.Covid19StatisticsByCountryRequest;
+import com.covid19.statistics.api.connector.dto.Covid19StatisticsByDateRequest;
 import java.time.Duration;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.rsocket.RSocketRequester;
@@ -61,32 +59,14 @@ public class Covid19StatisticServiceImpl implements Covid19StatisticService {
     }
 
     @Override
-    public Flux<Covid19StatisticsByCountry> streamCovid19StatisticsByCountriesCodes(
-        List<Covid19StatisticsByCountryRequest> countriesCodes
+    public Flux<Covid19StatisticTotal> getCovid19StatisticsByDatesRange(
+        Covid19StatisticsByDateRequest request
     ) {
         return
-            this.requesterMono.flatMapMany(req ->
-                Flux.fromIterable(countriesCodes)
-                    .flatMap(radar ->
-                        req.route("covid19.statistics.by.countries")
-                            .retrieveFlux(Covid19StatisticsByCountry.class)
-                    )
-            );
-    }
-
-    @Override
-    public Mono<Covid19StatisticsByCountry> findCovid19StatisticsByCountryCode(String countryCode) {
-        Covid19StatisticsByCountryRequest statisticsByCountryRequest =
-            Covid19StatisticsByCountryRequest.builder()
-                .countryCode(countryCode)
-                .build();
-
-        return
             this.requesterMono
-                .flatMap(req ->
-                    req.route("covid19.statistics.by.country")
-                        .data(statisticsByCountryRequest)
-                        .retrieveMono(Covid19StatisticsByCountry.class)
-                );
+                .flatMapMany(req ->
+                    req.route("covid19.statistics.by.dates.range")
+                        .data(request)
+                        .retrieveFlux(Covid19StatisticTotal.class));
     }
 }

@@ -39,12 +39,6 @@ export class ApiRSocketClient {
   }
 
   streamTotalCovid19Statistics(max, onNext) {
-    // let metadata = new Metadata();
-    // metadata.set(Metadata.ROUTE, 'covid19.statistics.total');
-    // return this.socket.requestStream({
-    //   metadata: metadata
-    // });
-
       let statistics = [];
       return new Promise(((resolve, reject) => {
         let metadata = new Metadata();
@@ -75,6 +69,26 @@ export class ApiRSocketClient {
         onComplete: data => {
           onComplete(data);
           return resolve(data);
+        }
+      });
+    }));
+  }
+
+  getCovid19StatisticsByDatesRange(onNext) {
+    return new Promise(((resolve, reject) => {
+      let metadata = new Metadata();
+      metadata.set(Metadata.ROUTE, 'covid19.statistics.by.dates.range');
+      return this.socket.requestStream({
+        data: {
+          startDate: "2020-05-17",
+          endDate: "2020-05-20"
+        },
+        metadata: metadata
+      }).subscribe({
+        onSubscribe: sub => sub.request(1000),
+        onError: error => reject(error),
+        onNext: msg => {
+          onNext(msg);
         }
       });
     }));
