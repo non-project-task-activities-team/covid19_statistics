@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Country {
     private String countryCode;
-    private Integer confirmed;
+    private String confirmed;
     private String recovered;
     private String death;
 }
