@@ -132,17 +132,17 @@ class CountiesMap extends Component {
       if(feature.server_data !== undefined) {
         popup.content.innerHTML =
             '<h3 class="ol-popup-title"><strong>' + feature.get("name") + '</strong></h3>' +
-            '<table style="width:100%">' +
+            '<table class="ol-popup-table">' +
               '<tr class="table-warning">' +
-                '<td>confirmed</td>' +
+                '<td>Confirmed</td>' +
                 '<td>' + feature.server_data.totalConfirmed + '</td>' +
               '</tr>' +
               '<tr class="table-danger">' +
-                '<td>deaths</td>' +
+                '<td>Deaths</td>' +
                 '<td>' + feature.server_data.totalDeaths + '</td>' +
               '</tr>' +
               '<tr class="table-success">' +
-                '<td>recovered</td>' +
+                '<td>Recovered</td>' +
                 '<td>' + feature.server_data.totalRecovered + '</td>' +
               '</tr>' +
             '</table>';
@@ -272,8 +272,15 @@ class CountiesMap extends Component {
 
   getHighlightedFeatureStyle(feature) {
     let data = feature.server_data;
-    let totalConfirmed = data === undefined ? 0 : data.totalConfirmed;
+    let totalConfirmed = 0;
     let opacity = 0.5;
+    let title = feature.get('name');
+
+    if(data !== undefined) {
+      totalConfirmed = data.totalConfirmed;
+      title += '\n' + data.totalConfirmed;
+    }
+
     return new Style({
       stroke: new Stroke({
         color: 'rgba(0, 0, 0, 1)',
@@ -288,7 +295,7 @@ class CountiesMap extends Component {
             )
       }),
       text: new Text({
-        text: feature.get('name'),
+        text: title,
         font: '14px Calibri,sans-serif',
         fill: new Fill({
           color: '#000'

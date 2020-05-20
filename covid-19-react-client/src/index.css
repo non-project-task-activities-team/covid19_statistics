@@ -75,3 +75,12 @@ code {
   text-align: center;
   margin: 0;
 }
+
+.ol-popup-table {
+  width:100%;
+  margin-top: 10px;
+}
+
+.ol-popup-table td {
+  padding: 2px 6px;
+}
