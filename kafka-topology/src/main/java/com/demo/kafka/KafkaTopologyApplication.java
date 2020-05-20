@@ -2,6 +2,7 @@ package com.demo.kafka;
 
 import com.demo.kafka.models.AggregatedCountry;
 import com.demo.kafka.models.Country;
+import com.demo.kafka.models.DailyStatistics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
@@ -18,9 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -32,11 +31,16 @@ public class KafkaTopologyApplication {
         SpringApplication.run(KafkaTopologyApplication.class, args);
     }
 
+    private static final String AMOUNT_STORE_NAME = "amount_store";
+    private Serde<Country> countrySerde;
+    private Serde<DailyStatistics> dailyStatisticsSerde;
+
     public static class WordCountProcessorApplication {
 
         public static final String INPUT_TOPIC = "countries";
         public static final String OUTPUT_TOPIC = "output";
         public static final int WINDOW_SIZE_MS = 30000;
+
 
         @Bean
         public Function<KStream<Bytes, String>, KStream<Bytes, WordCount>> process() {
@@ -51,35 +55,24 @@ public class KafkaTopologyApplication {
                     .map((key, value) -> new KeyValue<>(null, new WordCount(key.key(), value, new Date(key.window().start()),
 							new Date(key.window().end()))));
         }
-
-        @Bean
-        public KStream<String, Country> aggregate(StreamsBuilder streamsBuilder) {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            Serde<Country> countrySerde = new JsonSerde<>(Country.class, objectMapper);
-
-            Consumed<String, Country> countryConsumed = Consumed.with(Serdes.String(), countrySerde);
-            streamsBuilder.stream(INPUT_TOPIC, countryConsumed).groupByKey();
-
-
-            return input -> input
-                    .groupBy((s, country) -> country.getCountryCode(), Grouped.with(null, countrySerde))
-                    .aggregate(String::new,
-                            (s, country, board) -> board.concat(country.getConfirmed()),
-                            Materialized.<String, String, KeyValueStore<Bytes, byte[]>>as("test-countries")
-                    .withKeySerde(Serdes.String())
-                    .withValueSerde(Serdes.String()));
-        }
     }
 
     private KStream<String, AggregatedCountry> aggregate(KGroupedStream<String, Country> countries) {
-        return countries.aggregate(0, this::aggregateAmount, materializedAsPersistentStore())
+        ObjectMapper objectMapper = new ObjectMapper();
+        dailyStatisticsSerde = new JsonSerde<>(DailyStatistics.class, objectMapper);
+        return countries.aggregate(this::initialize, this::aggregateAmount)
                 .toStream()
-                .mapValues(AggregatedCountry::new);
+                .map((key, value) -> new KeyValue<>(null,
+                        AggregatedCountry.builder().dailyStatistics(value).build()));
     }
 
-    private Integer aggregateAmount(String key, Country country, Integer aggregatedAmount) {
-        return aggregatedAmount + country.getConfirmed();
+    private List<DailyStatistics> aggregateAmount(String key, Country country, List<DailyStatistics> aggregatedAmount) {
+        aggregatedAmount.add(DailyStatistics.builder().build());
+        return aggregatedAmount;
+    }
+
+    private List<DailyStatistics> initialize() {
+        return new ArrayList<>();
     }
 
     private <K, V> Materialized<K, V, KeyValueStore<Bytes, byte[]>> materializedAsPersistentStore(
