@@ -9,9 +9,7 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.KGroupedStream;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.boot.SpringApplication;
@@ -24,6 +22,8 @@ import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.messaging.handler.annotation.SendTo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -33,6 +33,12 @@ public class KafkaTopologyApplication {
 
     private static final String AMOUNT_STORE_NAME = "amount_store";
 
+    private final ObjectMapper objectMapper;
+
+    public KafkaTopologyApplication(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(KafkaTopologyApplication.class, args);
     }
@@ -40,22 +46,28 @@ public class KafkaTopologyApplication {
     @StreamListener("countries")
     @SendTo("counts")
     public KStream<?, String> process(KStream<Object, Country> input) {
-
         return input
-                .groupBy((key, value) -> {
-                    log.info("Grouping By Country Code " + value.getCountryCode());
-                    return value.getCountryCode();
-                })
-                .aggregate(this::initialize, this::aggregateAmount,
-                        materializedAsPersistentStore("countries",
-                                Serdes.String(),
-                                new JsonSerde<>(List.class, new ObjectMapper()
-                                )))
-                .mapValues(value -> {
-                    log.info("TEST " + value.get(0).getConfirmed());
-                    return value.get(0).getConfirmed();
-                })
-                .toStream();
+                .groupBy((key, value) -> value.getCountryCode())
+                .windowedBy(TimeWindows.of(5000))
+                .aggregate(this::initialize, this::aggregateAmount)
+                .toStream()
+                .map((key, value) -> new KeyValue<>(null, value))
+                ;
+
+
+
+
+//        KGroupedStream<String, Country> kGroupedStream = input
+//                .groupBy((key, value) -> {
+//                    log.info("Grouping By Country Code " + value.getCountryCode());
+//                    return value.getCountryCode();
+//                });
+//        KStream<String, AggregatedCountry> aggregatedCountries = aggregate(kGroupedStream);
+//        Produced<String, AggregatedCountry> produced = Produced.with(Serdes.String(),
+//                new JsonSerde<>(AggregatedCountry.class, objectMapper));
+////        aggregatedCountries.to("counts", produced);
+//        log.info("Aggregated countries   " + produced.toString());
+//        return "aggregatedCountries";
 
 //        return input
 //                .groupBy((key, value) -> value.getCountryCode())
@@ -94,25 +106,21 @@ public class KafkaTopologyApplication {
 //        return aggregatedCountries;
 //    }
 //
-    private KStream<String, AggregatedCountry> aggregate(KGroupedStream<String, Country> countries) {
-        return countries.aggregate(this::initialize, this::aggregateAmount)
-                .toStream()
-                .map((key, value) -> new KeyValue<>(null,
-                        AggregatedCountry.builder().dailyStatistics(value).build()));
-    }
+//    private KStream<String, AggregatedCountry> aggregate(KGroupedStream<String, Country> countries) {
+//        return countries.aggregate(this::initialize, this::aggregateAmount)
+//                .toStream()
+//                .map((key, value) -> new KeyValue<>(null,
+//                        AggregatedCountry.builder().dailyStatistics(value).build()));
+//    }
 
-    private List<DailyStatistics> aggregateAmount(String key, Country country, List<DailyStatistics> aggregatedAmount) {
-        aggregatedAmount.add(DailyStatistics.builder()
-                .confirmed(country.getConfirmed())
-                .recovered(country.getRecovered())
-                .death(country.getDeath())
-                .build());
+    private String aggregateAmount(String key, Country country, String aggregatedAmount) {
+        aggregatedAmount = aggregatedAmount.concat(country.getConfirmed());
         log.info("Inside aggregateAmount");
         return aggregatedAmount;
     }
 
-    private List<DailyStatistics> initialize() {
-        return new ArrayList<>();
+    private String initialize() {
+        return "";
     }
 //
     private <K, V> Materialized<K, V, KeyValueStore<Bytes, byte[]>> materializedAsPersistentStore(
