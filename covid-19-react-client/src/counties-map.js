@@ -90,7 +90,11 @@ class CountiesMap extends Component {
           self.maxTotalConfirmed = data.data.totalConfirmed;
           console.log("Current max total confirmed: " + self.maxTotalConfirmed);
         })
-    )
+    ).then(() =>
+        self.rSocketClient.getCovid19StatisticsByDatesRange(function (msg) {
+          console.log(msg.data);
+        })
+    );
 
     self.countriesVectorLayer = self.getCountriesVectorLayer();
     self.countiesMap = new Map({
