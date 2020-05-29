@@ -9,9 +9,7 @@ function App() {
   return (
       <div>
         <h1 className="title">COVID-19 statistics</h1>
-          <div className="center">
             <DatePicker/>
-          </div>
         <CountiesMap/>
       </div>
   );

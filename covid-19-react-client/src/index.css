@@ -90,3 +90,13 @@ code {
 .ol-popup-table td {
   padding: 2px 6px;
 }
+
+#dateRangePickerContainer {
+width: 90%;
+margin: auto;
+}
+
+#dateRangeSubmitButton {
+margin-top: 8px;
+margin-left: 20px;
+}

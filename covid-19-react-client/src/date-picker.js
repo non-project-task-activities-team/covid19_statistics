@@ -16,22 +16,21 @@ class DatePicker extends Component {
     this.state ={
       date: null,
       focused: null,
-      startDate: "",
-      endDate: "",
-      focusedInput: "",
+      startDate: moment('2020-03-01'),
+      endDate: moment(),
+      focusedInput: null,
     }
   }
   render() {
     return (
-      <div>
-        <Container>
+        <div id="dateRangePickerContainer">
           <Form>
             <FormGroup>
             <DateRangePicker
               startDate={this.state.startDate} // momentPropTypes.momentObj or null,
-              startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
+              startDateId="start_date_input" // PropTypes.string.isRequired,
               endDate={this.state.endDate} // momentPropTypes.momentObj or null,
-              endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
+              endDateId="end_date_input" // PropTypes.string.isRequired,
               onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
               focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
               onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
@@ -41,11 +40,10 @@ class DatePicker extends Component {
               firstDayOfWeek={1}
               displayFormat={"DD/MM/YYYY"}
             />
+            <button type="button" className="btn btn-primary mb-2" id="dateRangeSubmitButton">Submit</button>
             </FormGroup>
-            <button type="button" className="btn btn-primary mb-2">Submit</button>
           </Form>
-        </Container>
-      </div>
+        </div>
     );
   }
 }

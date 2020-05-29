@@ -93,7 +93,7 @@ class CountiesMap extends Component {
     ).then(() =>
         self.rSocketClient.getCovid19StatisticsByDatesRange(function (msg) {
           console.log(msg.data);
-        })
+        }) // On Submit click then
     );
 
     self.countriesVectorLayer = self.getCountriesVectorLayer();
