@@ -40,7 +40,6 @@ class DatePicker extends Component {
               openDirection="down"
               firstDayOfWeek={1}
               displayFormat={"DD/MM/YYYY"}
-              maxDate={moment.locale('us')}
             />
             </FormGroup>
             <button type="button" className="btn btn-primary mb-2">Submit</button>
