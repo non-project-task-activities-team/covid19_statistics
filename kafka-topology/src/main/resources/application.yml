@@ -4,7 +4,9 @@ spring.cloud.stream:
     process-in-0:
       destination: countries
     process-out-0:
-      destination: counts
+      destination: aggregated
+    daily-out-0:
+      destination: daily
   kafka:
     streams:
       binder:
@@ -14,10 +16,6 @@ spring.cloud.stream:
           default:
             key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
             value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-#      bindings:
-#        counts:
-#          producer:
-#            valueSerde: org.springframework.kafka.support.serializer.JsonSerde
 #Enable metrics
 management:
   endpoint:

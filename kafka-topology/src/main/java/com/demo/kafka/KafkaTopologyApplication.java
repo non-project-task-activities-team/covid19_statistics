@@ -1,15 +1,17 @@
 package com.demo.kafka;
+import java.util.Collections;
+import java.util.List;
 
 import com.demo.kafka.models.AggregatedCountry;
 import com.demo.kafka.models.Country;
 import com.demo.kafka.models.DailyStatistics;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.boot.SpringApplication;
@@ -18,111 +20,77 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.kafka.support.serializer.JsonSerde;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.messaging.handler.annotation.SendTo;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 @Slf4j
 @SpringBootApplication
 @EnableBinding(KafkaTopologyApplication.KStreamProcessorWithBranches.class)
 public class KafkaTopologyApplication {
-
-    private static final String AMOUNT_STORE_NAME = "amount_store";
-
-    private final ObjectMapper objectMapper;
-
-    public KafkaTopologyApplication(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(KafkaTopologyApplication.class, args);
     }
-
     @StreamListener("countries")
-    @SendTo("counts")
-    public KStream<?, String> process(KStream<Object, Country> input) {
+    @SendTo("aggregated")
+    public KStream<?, AggregatedCountry> process(KStream<Object, Country> input) {
         return input
                 .groupBy((key, value) -> value.getCountryCode())
-                .windowedBy(TimeWindows.of(5000))
-                .aggregate(this::initialize, this::aggregateAmount)
+                .aggregate(this::initialize,
+                        this::aggregateAmount,
+                        materializedAsPersistentStore("countries", Serdes.String(),
+                                Serdes.serdeFrom(new JsonSerializer<>(),
+                                        new JsonDeserializer<>(AggregatedCountry.class))))
                 .toStream()
-                .map((key, value) -> new KeyValue<>(null, value))
-                ;
-
-
-
-
-//        KGroupedStream<String, Country> kGroupedStream = input
-//                .groupBy((key, value) -> {
-//                    log.info("Grouping By Country Code " + value.getCountryCode());
-//                    return value.getCountryCode();
-//                });
-//        KStream<String, AggregatedCountry> aggregatedCountries = aggregate(kGroupedStream);
-//        Produced<String, AggregatedCountry> produced = Produced.with(Serdes.String(),
-//                new JsonSerde<>(AggregatedCountry.class, objectMapper));
-////        aggregatedCountries.to("counts", produced);
-//        log.info("Aggregated countries   " + produced.toString());
-//        return "aggregatedCountries";
-
-//        return input
-//                .groupBy((key, value) -> value.getCountryCode())
-//                .aggregate(this::initialize, this::aggregateAmount)
-//                .mapValues(value -> {
-//                    log.info("TEST " + value.get(0).getConfirmed());
-//                    return value.get(0).getConfirmed();
-//                })
-//                .toStream();
+                .map((key, value) -> new KeyValue<>(null, value));
     }
-
+    @StreamListener("countries")
+    @SendTo("daily")
+    public KStream<?, List<DailyStatistics>> daily(KStream<Object, Country> input) {
+        return input
+                .groupBy((key, value) -> value.getCountryCode())
+                .aggregate(this::initializeDailyStatistics,
+                        this::dailyStatistics,
+                        materializedAsPersistentStore("daily", Serdes.String(),
+                                Serdes.serdeFrom(new JsonSerializer<>(),
+                                        new JsonDeserializer<>(List.class))))
+                .toStream()
+                .map((key, value) -> new KeyValue<>(null, value));
+    }
     interface KStreamProcessorWithBranches {
-
         @Input("countries")
         KStream<?, ?> countries();
-
-        @Output("counts")
-        KStream<?, ?> counts();
-
-
+        @Output("aggregated")
+        KStream<?, ?> aggregated();
+        @Output("daily")
+        KStream<?, ?> daily();
+    }
+    private AggregatedCountry aggregateAmount(String key, Country country, AggregatedCountry aggregatedCountry) {
+        aggregatedCountry.setCountryCode(country.getCountryCode());
+        aggregatedCountry.setTotalConfirmed(aggregatedCountry.getTotalConfirmed() + Integer.parseInt(country.getConfirmed()));
+        aggregatedCountry.setTotalRecovered(aggregatedCountry.getTotalRecovered() + Integer.parseInt(country.getRecovered()));
+        log.info("Inside aggregateAmount + " + aggregatedCountry);
+        return aggregatedCountry;
+    }
+    private AggregatedCountry initialize() {
+        return AggregatedCountry.builder()
+                .totalConfirmed(0)
+                .totalRecovered(0)
+                .build();
+    }
+    private List<DailyStatistics> initializeDailyStatistics() {
+        return Collections.singletonList(DailyStatistics.builder().build());
+    }
+    private List<DailyStatistics> dailyStatistics(String key, Country country, List<DailyStatistics> dailyStatistics) {
+        dailyStatistics.add(DailyStatistics.builder()
+                .countryCode(country.getCountryCode())
+                .confirmed(country.getConfirmed())
+                .deaths(country.getDeaths())
+                .recovered(country.getRecovered())
+                .date(country.getDay()).build());
+        log.info("Inside dailyStatistics + " + dailyStatistics);
+        return dailyStatistics;
     }
 
-    //    @Bean
-//    public KStream<String, AggregatedCountry> kStream(StreamsBuilder streamsBuilder) {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonSerde<Country> countryJsonSerde = new JsonSerde<>(Country.class, objectMapper);
-//        KGroupedStream<String, Country> countries = streamsBuilder.stream("countries", Consumed.with(Serdes.String(),
-//                countryJsonSerde)).groupByKey(Grouped.with(Serdes.String(), countryJsonSerde));
-//        log.info("Countries " + countries.count().toString());
-//
-//        KStream<String, AggregatedCountry> aggregatedCountries = aggregate(countries);
-//
-//        Produced<String, AggregatedCountry> produced = Produced.with(Serdes.String(), new JsonSerde<>(AggregatedCountry.class, objectMapper));
-//        aggregatedCountries.to("counts", produced);
-//        log.info("Aggregated countries   " + produced.toString());
-//        return aggregatedCountries;
-//    }
-//
-//    private KStream<String, AggregatedCountry> aggregate(KGroupedStream<String, Country> countries) {
-//        return countries.aggregate(this::initialize, this::aggregateAmount)
-//                .toStream()
-//                .map((key, value) -> new KeyValue<>(null,
-//                        AggregatedCountry.builder().dailyStatistics(value).build()));
-//    }
-
-    private String aggregateAmount(String key, Country country, String aggregatedAmount) {
-        aggregatedAmount = aggregatedAmount.concat(country.getConfirmed());
-        log.info("Inside aggregateAmount");
-        return aggregatedAmount;
-    }
-
-    private String initialize() {
-        return "";
-    }
-//
     private <K, V> Materialized<K, V, KeyValueStore<Bytes, byte[]>> materializedAsPersistentStore(
             String storeName,
             Serde<K> keySerde,

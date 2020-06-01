@@ -11,9 +11,7 @@ import java.util.List;
 @Builder
 public class AggregatedCountry {
 
-    private String country;
     private String countryCode;
     private Integer totalConfirmed;
-    private String totalRecovered;
-    private List<DailyStatistics> dailyStatistics;
+    private Integer totalRecovered;
 }
