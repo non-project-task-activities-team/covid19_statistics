@@ -1,10 +1,9 @@
 package com.trainingtask.dataprocessor.repository;
 
-
-import com.trainingtask.dataprocessor.model.DailyStatistic;
+import com.trainingtask.dataprocessor.entity.Statistic;
 
 @FunctionalInterface
-public interface MongoRepository {
+public interface MongoRepository<T extends Statistic> {
 
-    void upsert(DailyStatistic statistic);
+    void upsert(T statistic);
 }

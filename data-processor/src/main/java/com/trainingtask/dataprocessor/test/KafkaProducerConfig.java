@@ -1,6 +1,7 @@
-package com.trainingtask.dataprocessor.config;
+package com.trainingtask.dataprocessor.test;
 
-import com.trainingtask.dataprocessor.model.DailyStatistic;
+import com.trainingtask.dataprocessor.entity.DailyStatistic;
+import com.trainingtask.dataprocessor.entity.GeneralStatistic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +22,7 @@ public class KafkaProducerConfig {
     private String bootstrapAddress;
 
     @Bean
-    public ProducerFactory<String, DailyStatistic> statisticProducerFactory() {
+    public ProducerFactory<String, GeneralStatistic> generalStatisticProducerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -30,7 +31,21 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, DailyStatistic> statisticKafkaTemplate() {
-        return new KafkaTemplate<>(statisticProducerFactory());
+    public ProducerFactory<String, DailyStatistic> dailyStatisticProducerFactory() {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    public KafkaTemplate<String, GeneralStatistic> generalStatisticKafkaTemplate() {
+        return new KafkaTemplate<>(generalStatisticProducerFactory());
+    }
+
+    @Bean
+    public KafkaTemplate<String, DailyStatistic> dailyStatisticKafkaTemplate() {
+        return new KafkaTemplate<>(dailyStatisticProducerFactory());
     }
 }

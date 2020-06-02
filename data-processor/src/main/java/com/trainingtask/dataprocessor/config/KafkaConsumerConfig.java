@@ -1,6 +1,7 @@
 package com.trainingtask.dataprocessor.config;
 
-import com.trainingtask.dataprocessor.model.DailyStatistic;
+import com.trainingtask.dataprocessor.entity.DailyStatistic;
+import com.trainingtask.dataprocessor.entity.GeneralStatistic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +25,14 @@ public class KafkaConsumerConfig {
     @Value("${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
-    public ConsumerFactory<String, DailyStatistic> statisticConsumerFactory() {
+    public ConsumerFactory<String, GeneralStatistic> generalStatisticConsumerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(GeneralStatistic.class));
+    }
+
+    public ConsumerFactory<String, DailyStatistic> dailyStatisticConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -32,9 +40,16 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, DailyStatistic> statisticKafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, GeneralStatistic> generalStatisticKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, GeneralStatistic> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(generalStatisticConsumerFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, DailyStatistic> dailyStatisticKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, DailyStatistic> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(statisticConsumerFactory());
+        factory.setConsumerFactory(dailyStatisticConsumerFactory());
         return factory;
     }
 }
