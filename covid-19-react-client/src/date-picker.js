@@ -1,19 +1,16 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Form, Input, FormGroup, Container, Label} from 'reactstrap';
-import momentPropTypes from 'react-moment-proptypes';
+import {Form, FormGroup} from 'reactstrap';
 import moment from 'moment';
 import 'react-dates/initialize';
 import 'react-dates/lib/css/_datepicker.css';
 import {DateRangePicker} from 'react-dates';
-import isAfterDay from 'react-dates/lib/utils/isAfterDay'
 import isInclusivelyAfterDay from 'react-dates/lib/utils/isAfterDay'
 
 class DatePicker extends Component {
   constructor(props) {
     super(props);
-    this.state ={
+    this.state = {
       date: null,
       focused: null,
       startDate: moment('2020-03-01'),
@@ -21,6 +18,13 @@ class DatePicker extends Component {
       focusedInput: null,
     }
   }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    this.props.dateRangeSubmitButtonHandler(this.state);
+    this.btn.setAttribute("disabled", "disabled");
+  }
+
   render() {
     return (
         <div id="dateRangePickerContainer">
@@ -31,7 +35,10 @@ class DatePicker extends Component {
               startDateId="start_date_input" // PropTypes.string.isRequired,
               endDate={this.state.endDate} // momentPropTypes.momentObj or null,
               endDateId="end_date_input" // PropTypes.string.isRequired,
-              onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
+              onDatesChange={({ startDate, endDate }) => {
+                this.btn.removeAttribute("disabled");
+                this.setState({ startDate, endDate });
+              }} // PropTypes.func.isRequired,
               focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
               onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
               isOutsideRange={(day) => isInclusivelyAfterDay(day, moment())}
@@ -40,7 +47,15 @@ class DatePicker extends Component {
               firstDayOfWeek={1}
               displayFormat={"DD/MM/YYYY"}
             />
-            <button type="button" className="btn btn-primary mb-2" id="dateRangeSubmitButton">Submit</button>
+            <button 
+              type="button" 
+              className="btn btn-primary mb-2" 
+              id="dateRangeSubmitButton" 
+              onClick={this.handleSubmit.bind(this)}
+              ref={btn => { this.btn = btn; }}
+            >
+                Submit
+            </button>
             </FormGroup>
           </Form>
         </div>

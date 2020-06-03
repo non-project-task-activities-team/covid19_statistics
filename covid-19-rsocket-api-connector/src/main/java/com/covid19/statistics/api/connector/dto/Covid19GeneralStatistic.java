@@ -19,10 +19,12 @@ public class Covid19GeneralStatistic {
 
     @JsonInclude(Include.NON_ABSENT)
     private UUID id;
-    private String countryCode;
-    private Integer totalConfirmed;
-    private Integer totalDeaths;
-    private Integer totalRecovered;
     @JsonInclude(Include.NON_ABSENT)
-    private LocalDateTime timestamp;
+    private String datasource;
+    private String countryCode;
+    private Integer confirmed;
+    private Integer deaths;
+    private Integer recovered;
+    @JsonInclude(Include.NON_ABSENT)
+    private LocalDateTime lastModifiedAt;
 }

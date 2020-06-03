@@ -67,7 +67,7 @@ code {
 }
 
 .ol-popup-closer {
-  text-decoration: none;
+  text-decoration: none !important;
   position: absolute;
   top: 2px;
   right: 8px;

@@ -23,17 +23,17 @@ public class Covid19GeneralStatisticController {
         this.covid19GeneralStatisticService = covid19GeneralStatisticService;
     }
 
-    @MessageMapping("covid19.statistics.total.max")
+    @MessageMapping("covid19.statistics.general.max")
     public Mono<Covid19GeneralStatistic> getMaxCovid19GeneralStatistic() {
         return covid19GeneralStatisticService.findFirstByOrderByConfirmedDesc();
     }
 
-    @MessageMapping("covid19.statistics.total")
+    @MessageMapping("covid19.statistics.general")
     public Flux<Covid19GeneralStatistic> getCovid19GeneralStatistics() {
         return covid19GeneralStatisticService.findAll();
     }
 
-    @MessageMapping("covid19.statistics.total.stream")
+    @MessageMapping("covid19.statistics.general.stream")
     public Flux<Covid19GeneralStatistic> streamCovid19GeneralStatistics() {
         Flux<Covid19GeneralStatistic> totalFlux = covid19GeneralStatisticService.findAll();
 

@@ -6,13 +6,14 @@ import GeoJSON from 'ol/format/GeoJSON';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import {Fill, Stroke, Style, Text} from 'ol/style';
-import {fromLonLat, toLonLat, transform} from 'ol/proj';
+import {fromLonLat, transform} from 'ol/proj';
 import ReactDOM from 'react-dom';
 import Overlay from 'ol/Overlay';
 import {getCenter} from 'ol/extent';
 import {ApiRSocketClient} from './api-rsocket-client';
 import {MapUtils} from './map-utils';
 import {Metadata} from './metadata'
+import DatePicker from './date-picker';
 
 class CountiesMap extends Component {
 
@@ -25,31 +26,15 @@ class CountiesMap extends Component {
     this.showPopupInFeatureCenter = false;
     this.popupIsShown = false;
     this.mapIsReady = false;
+    this.maxBackpresure = 100;
 
     this.rSocketClient =
-        new ApiRSocketClient(
-            'ws://localhost:8080/rsocket',
-            new MapHandler(this.map)
-        );
+      new ApiRSocketClient(
+        'ws://localhost:8080/rsocket',
+        new MapHandler(this.map)
+      );
 
-    // this.rSocketClient.connect()
-    //   .then(() =>
-    //       this.rSocketClient.fetchTotalCovid19Statistics(100)
-    //         .subscribe({
-    //             onSubscribe: sub => {
-    //               this.useSubscription(sub)
-    //             },
-    //             onNext: msg => {
-    //               console.log("onNext: ");
-    //               console.log(msg.data);
-    //             },
-    //             onError: error => {
-    //               console.error("onError: " + error);
-    //               console.dir(error);
-    //             }
-    //         })
-    //   )
-    //   .then(v => console.log(v));
+    this.backpressureCtrl = new BackpressureCtrl(true, this.maxBackpresure);
   }
 
   initPopup() {
@@ -86,14 +71,10 @@ class CountiesMap extends Component {
     let popup = this.initPopup();
 
     self.rSocketClient.connect().then(() =>
-        self.rSocketClient.getMaxTotalCovid19Statistics(function (data) {
-          self.maxTotalConfirmed = data.data.totalConfirmed;
-          console.log("Current max total confirmed: " + self.maxTotalConfirmed);
+        self.rSocketClient.getMaxGeneralCovid19Statistic(function (data) {
+          self.maxGeneralConfirmed = data.data.confirmed;
+          console.log("Current max general confirmed: " + self.maxGeneralConfirmed);
         })
-    ).then(() =>
-        self.rSocketClient.getCovid19StatisticsByDatesRange(function (msg) {
-          console.log(msg.data);
-        }) // On Submit click then
     );
 
     self.countriesVectorLayer = self.getCountriesVectorLayer();
@@ -139,15 +120,15 @@ class CountiesMap extends Component {
             '<table class="ol-popup-table">' +
               '<tr class="table-warning">' +
                 '<td>Confirmed</td>' +
-                '<td>' + feature.server_data.totalConfirmed + '</td>' +
+                '<td>' + feature.server_data.confirmed + '</td>' +
               '</tr>' +
               '<tr class="table-danger">' +
                 '<td>Deaths</td>' +
-                '<td>' + feature.server_data.totalDeaths + '</td>' +
+                '<td>' + feature.server_data.deaths + '</td>' +
               '</tr>' +
               '<tr class="table-success">' +
                 '<td>Recovered</td>' +
-                '<td>' + feature.server_data.totalRecovered + '</td>' +
+                '<td>' + feature.server_data.recovered + '</td>' +
               '</tr>' +
             '</table>';
       } else {
@@ -167,21 +148,11 @@ class CountiesMap extends Component {
     self.countriesVectorLayer.getSource().on("change", function(e) {
       if(self.countriesVectorLayer.getSource().getState() === "ready" && !self.mapIsReady) {
         let features = self.countriesVectorLayer.getSource().getFeatures();
-        self.rSocketClient.streamTotalCovid19Statistics(1000, function (msg) {
-          console.log(msg.data);
-          features.filter(feature => feature.get("iso_a2") === msg.data.countryCode)
-            .forEach(feature => {
-              feature.server_data = msg.data;
-              if(self.maxTotalConfirmed < msg.data.totalConfirmed) {
-                self.maxTotalConfirmed = msg.data.totalConfirmed;
-                console.log("New max total confirmed: " + self.maxTotalConfirmed);
-                features.forEach(feature => {
-                  feature.setStyle(self.getFeatureStyle(feature));
-                });
-              }
-              feature.setStyle(self.getFeatureStyle(feature));
-            });
-        });
+        self.rSocketClient.streamGeneralCovid19Statistic(self.maxBackpresure)
+          .subscribe({
+            onSubscribe: sub => self.backpressureCtrl.useSubscription(sub),
+            onNext: payload => self.onNextRSocketStreamHandler(features, payload)
+          });
         self.mapIsReady = true;
       }
     });
@@ -199,8 +170,46 @@ class CountiesMap extends Component {
     }
   }
 
+  dateRangeSubmitButtonHandler(state) {
+    let self = this;
+    self.backpressureCtrl.cancel();
+    self.maxGeneralConfirmed = 0;
+    let features = self.countriesVectorLayer.getSource().getFeatures();
+    features.forEach(feature => {
+      feature.server_data = null;
+      feature.setStyle(self.getFeatureStyle(feature));
+    });
+    let startDate = state.startDate.format("YYYY-MM-DD");
+    let endDate = state.endDate.format("YYYY-MM-DD");
+    self.rSocketClient.streamCovid19StatisticsByDatesRange(self.maxBackpresure, startDate, endDate)
+      .subscribe({
+        onSubscribe: sub => self.backpressureCtrl.useSubscription(sub),
+        onNext: payload => self.onNextRSocketStreamHandler(features, payload)
+      });
+  }
+
+  onNextRSocketStreamHandler(features, payload) {
+    let self = this;
+    console.log(payload.data);
+    self.backpressureCtrl.decreaseCurrentDemand();
+    features.filter(feature => feature.get("iso_a2") === payload.data.countryCode)
+      .forEach(feature => {
+        feature.server_data = payload.data;
+        if(self.maxGeneralConfirmed < payload.data.confirmed) {
+          self.maxGeneralConfirmed = payload.data.confirmed;
+          console.log("New max general confirmed: " + self.maxGeneralConfirmed);
+          features.forEach(feature => {
+            feature.setStyle(self.getFeatureStyle(feature));
+          });
+        }
+        feature.setStyle(self.getFeatureStyle(feature));
+      });
+  }
+
   render() {
     return (
+      <div>
+        <DatePicker dateRangeSubmitButtonHandler={this.dateRangeSubmitButtonHandler.bind(this)} />
         <div id="mapContainer">
           <div id="map" ref={this.setMapRef}></div>
           <div id="popup" className="ol-popup">
@@ -208,6 +217,7 @@ class CountiesMap extends Component {
             <div id="popup-content"></div>
           </div>
         </div>
+      </div>
     )
   }
 
@@ -243,18 +253,18 @@ class CountiesMap extends Component {
 
   getFeatureStyle(feature) {
     let data = feature.server_data;
-    let totalConfirmed = 0;
+    let confirmed = 0;
     let opacity = 0.4;
     let title = feature.get('name');
 
-    if(data !== undefined) {
-      totalConfirmed = data.totalConfirmed;
-      title += '\n' + data.totalConfirmed;
+    if(data !== undefined && data !== null) {
+      confirmed = data.confirmed;
+      title += '\n' + data.confirmed;
     }
 
     return new Style({
       fill: new Fill({
-        color: MapUtils.calculateColor(this.maxTotalConfirmed, totalConfirmed, opacity)
+        color: MapUtils.calculateColor(this.maxGeneralConfirmed, confirmed, opacity)
       }),
       stroke: new Stroke({
         color: 'rgba(0, 0, 0, 0.5)',
@@ -276,13 +286,13 @@ class CountiesMap extends Component {
 
   getHighlightedFeatureStyle(feature) {
     let data = feature.server_data;
-    let totalConfirmed = 0;
+    let confirmed = 0;
     let opacity = 0.5;
     let title = feature.get('name');
 
     if(data !== undefined) {
-      totalConfirmed = data.totalConfirmed;
-      title += '\n' + data.totalConfirmed;
+      confirmed = data.confirmed;
+      title += '\n' + data.confirmed;
     }
 
     return new Style({
@@ -293,8 +303,8 @@ class CountiesMap extends Component {
       fill: new Fill({
         color:
             MapUtils.calculateColor(
-                this.maxTotalConfirmed,
-                totalConfirmed,
+                this.maxGeneralConfirmed,
+                confirmed,
                 opacity
             )
       }),
@@ -311,22 +321,56 @@ class CountiesMap extends Component {
       })
     });
   }
+}
 
+class BackpressureCtrl {
+  constructor(useTotalBackpresure, maxBackpresure) {
+    this.useTotalBackpresure = useTotalBackpresure;
+    this.maxBackpresure = maxBackpresure;
+    if(!this.useTotalBackpresure) {
+      window.setInterval(() => {
+        let currentDemand = this.currentDemand;
+        if (this.subscription && currentDemand < maxBackpresure) {
+          this.subscription.request(maxBackpresure - currentDemand);
+          this.currentDemand += maxBackpresure - currentDemand;
+        }
+      }, 1000);
+    }
+  }
+
+  useSubscription(sub) {
+    this.currentDemand = 0;
+    this.subscription = sub;
+    if(this.useTotalBackpresure) {
+      this.subscription.request(this.maxBackpresure);
+    }
+  }
+
+  decreaseCurrentDemand() {
+    if(!this.useTotalBackpresure) {
+      this.currentDemand--;
+    }
+  }
+    
+  cancel() {
+    if (this.subscription) {
+      this.subscription.cancel();
+      this.subscription = null;
+    }
+  }
 }
 
 class MapHandler {
-
   constructor(map) {
     this.map = map;
   }
 
   fireAndForget(payload) {
-    if(payload.metadata.get(Metadata.ROUTE) == "send.to.location") {
+    if(payload.metadata.get(Metadata.ROUTE) === "send.to.location") {
       const radar = payload.data;
       this.map.panTo([radar.location.lat, radar.location.lng]);
     }
   }
-
 }
 
 export default CountiesMap;

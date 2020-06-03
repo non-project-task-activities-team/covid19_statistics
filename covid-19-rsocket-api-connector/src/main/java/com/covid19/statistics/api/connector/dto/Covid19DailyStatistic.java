@@ -17,10 +17,11 @@ import lombok.Setter;
 public class Covid19DailyStatistic {
 
     private UUID id;
+    private String datasource;
     private String countryCode;
-    private Integer totalConfirmed;
-    private Integer totalDeaths;
-    private Integer totalRecovered;
-    private LocalDateTime timestamp;
     private LocalDate date;
+    private Integer confirmed;
+    private Integer deaths;
+    private Integer recovered;
+    private LocalDateTime lastModifiedAt;
 }

@@ -1,4 +1,4 @@
-package com.covid19.statistics.api.connector.dto;
+package com.covid19.statistics.api.utils.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -38,30 +38,19 @@ export class ApiRSocketClient {
     }));
   }
 
-  streamTotalCovid19Statistics(max, onNext) {
-      let statistics = [];
-      return new Promise(((resolve, reject) => {
-        let metadata = new Metadata();
-        metadata.set(Metadata.ROUTE, 'covid19.statistics.total.stream');
-        return this.socket.requestStream({
-          data: {max: max},
-          metadata: metadata,
-        }).subscribe({
-          onSubscribe: sub => sub.request(max),
-          onError: error => reject(error),
-          onNext: msg => {
-            onNext(msg);
-            statistics.push(msg.data);
-          },
-          onComplete: () => resolve(statistics)
-        });
-      }));
+  streamGeneralCovid19Statistic(maxBackpresure) {
+    let metadata = new Metadata();
+    metadata.set(Metadata.ROUTE, 'covid19.statistics.general.stream');
+    return this.socket.requestStream({
+      data: { max: maxBackpresure },
+      metadata: metadata
+    });
   }
 
-  getMaxTotalCovid19Statistics(onComplete) {
+  getMaxGeneralCovid19Statistic(onComplete) {
     return new Promise(((resolve, reject) => {
       let metadata = new Metadata();
-      metadata.set(Metadata.ROUTE, 'covid19.statistics.total.max');
+      metadata.set(Metadata.ROUTE, 'covid19.statistics.general.max');
       return this.socket.requestResponse({
         metadata: metadata,
       }).subscribe({
@@ -74,26 +63,17 @@ export class ApiRSocketClient {
     }));
   }
 
-
-// input parameters: start date, end date
-  getCovid19StatisticsByDatesRange(startDate, endDate, onNext) {
-    return new Promise(((resolve, reject) => {
-      let metadata = new Metadata();
-      metadata.set(Metadata.ROUTE, 'covid19.statistics.by.dates.range');
-      return this.socket.requestStream({
-        data: {
-          startDate: startDate,
-          endDate: endDate
-        },
-        metadata: metadata
-      }).subscribe({
-        onSubscribe: sub => sub.request(1000),
-        onError: error => reject(error),
-        onNext: msg => {
-          onNext(msg);
-        }
-      });
-    }));
+  streamCovid19StatisticsByDatesRange(maxBackpresure, startDate, endDate) {
+    let metadata = new Metadata();
+    metadata.set(Metadata.ROUTE, 'covid19.statistics.daily.by_dates_range.stream');
+    return this.socket.requestStream({
+      data: {
+        max: maxBackpresure, 
+        startDate: startDate, 
+        endDate: endDate
+      }, 
+      metadata: metadata
+    });
   }
 
   disconnect() {

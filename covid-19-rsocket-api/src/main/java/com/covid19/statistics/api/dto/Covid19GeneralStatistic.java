@@ -1,5 +1,7 @@
 package com.covid19.statistics.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -17,11 +19,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Covid19GeneralStatistic {
 
     @Id
+    @JsonInclude(Include.NON_ABSENT)
     private UUID id;
     private String datasource;
     private String countryCode;
     private Integer confirmed;
     private Integer deaths;
     private Integer recovered;
+    @JsonInclude(Include.NON_ABSENT)
     private LocalDateTime lastModifiedAt;
 }

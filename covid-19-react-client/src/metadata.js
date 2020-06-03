@@ -27,7 +27,7 @@ Metadata.AUTHENTICATION_BEARER = "message/x.rsocket.authentication.bearer.v0";
 export const JsonMetadataSerializer = {
 
   deserialize(data) {
-    if (data == null) {
+    if (data === null) {
       return null;
     }
     let json = JsonSerializer.deserialize(data);
@@ -35,7 +35,7 @@ export const JsonMetadataSerializer = {
   },
 
   serialize(metadata) {
-    if (metadata == null) {
+    if (metadata === null) {
       return null;
     }
     let json = metadata.toJSON();

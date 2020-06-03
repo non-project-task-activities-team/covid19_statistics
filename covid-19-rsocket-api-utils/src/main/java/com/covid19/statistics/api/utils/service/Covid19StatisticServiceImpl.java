@@ -1,6 +1,6 @@
 package com.covid19.statistics.api.utils.service;
 
-import com.covid19.statistics.api.utils.dto.Covid19StatisticTotal;
+import com.covid19.statistics.api.utils.dto.Covid19GeneralStatistic;
 import java.net.URI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -38,11 +38,11 @@ public class Covid19StatisticServiceImpl implements Covid19StatisticService {
     }
 
     @Override
-    public Flux<Covid19StatisticTotal> getTotalCovid19Statistics() {
+    public Flux<Covid19GeneralStatistic> getCovid19GeneralStatistic() {
         return
-            this.requesterMono
-                .flatMapMany(req ->
-                    req.route("covid19.statistics.total")
-                        .retrieveFlux(Covid19StatisticTotal.class));
+            this.requesterMono.flatMapMany(req ->
+                req.route("covid19.statistics.general")
+                    .retrieveFlux(Covid19GeneralStatistic.class)
+            );
     }
 }

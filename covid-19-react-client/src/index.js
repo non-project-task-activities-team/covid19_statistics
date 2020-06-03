@@ -3,13 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import CountiesMap from './counties-map';
 import * as serviceWorker from './serviceWorker';
-import DatePicker from './date-picker';
 
 function App() {
   return (
       <div>
         <h1 className="title">COVID-19 statistics</h1>
-            <DatePicker/>
         <CountiesMap/>
       </div>
   );

@@ -1,7 +1,7 @@
 package com.covid19.statistics.api.connector.service;
 
-import com.covid19.statistics.api.connector.dto.Covid19StatisticTotal;
-import com.covid19.statistics.api.connector.dto.Covid19StatisticsByDateRequest;
+import com.covid19.statistics.api.connector.dto.Covid19DailyStatisticByDatesRangeRequest;
+import com.covid19.statistics.api.connector.dto.Covid19GeneralStatistic;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -30,43 +30,41 @@ public class Covid19StatisticServiceImpl implements Covid19StatisticService {
     }
 
     @Override
-    public Flux<Covid19StatisticTotal> getCovid19StatisticTotal() {
+    public Flux<Covid19GeneralStatistic> getCovid19GeneralStatistic() {
         return
-            this.requesterMono
-                .flatMapMany(req ->
-                    req.route("covid19.statistics.total")
-                        .retrieveFlux(Covid19StatisticTotal.class));
+            this.requesterMono.flatMapMany(req ->
+                req.route("covid19.statistics.general")
+                    .retrieveFlux(Covid19GeneralStatistic.class)
+            );
     }
 
     @Override
-    public Mono<Covid19StatisticTotal> getMaxCovid19StatisticTotal() {
+    public Mono<Covid19GeneralStatistic> getMaxCovid19GeneralStatistic() {
         return
-            this.requesterMono
-                .flatMap(req ->
-                    req.route("covid19.statistics.total.max")
-                        .retrieveMono(Covid19StatisticTotal.class)
-                );
+            this.requesterMono.flatMap(req ->
+                req.route("covid19.statistics.general.max")
+                    .retrieveMono(Covid19GeneralStatistic.class)
+            );
     }
 
     @Override
-    public Flux<Covid19StatisticTotal> streamCovid19StatisticTotal(Integer max) {
+    public Flux<Covid19GeneralStatistic> streamCovid19GeneralStatistic(Integer max) {
         return
-            this.requesterMono
-                .flatMapMany(req ->
-                    req.route("covid19.statistics.total.stream")
-                        .retrieveFlux(Covid19StatisticTotal.class))
-                .take(max);
+            this.requesterMono.flatMapMany(req ->
+                req.route("covid19.statistics.general.stream")
+                    .retrieveFlux(Covid19GeneralStatistic.class)
+            ).take(max);
     }
 
     @Override
-    public Flux<Covid19StatisticTotal> getCovid19StatisticsByDatesRange(
-        Covid19StatisticsByDateRequest request
+    public Flux<Covid19GeneralStatistic> streamCovid19DailyStatisticByDatesRange(
+        Covid19DailyStatisticByDatesRangeRequest request
     ) {
         return
-            this.requesterMono
-                .flatMapMany(req ->
-                    req.route("covid19.statistics.by.dates.range")
-                        .data(request)
-                        .retrieveFlux(Covid19StatisticTotal.class));
+            this.requesterMono.flatMapMany(req ->
+                req.route("covid19.statistics.daily.by_dates_range.stream")
+                    .data(request)
+                    .retrieveFlux(Covid19GeneralStatistic.class)
+            ).take(request.getMax());
     }
 }

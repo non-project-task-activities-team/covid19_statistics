@@ -20,7 +20,7 @@ public class Covid19DailyStatisticConnectorController {
         this.covid19StatisticService = covid19StatisticService;
     }
 
-    @MessageMapping("covid19.statistics.by.dates.range")
+    @MessageMapping("covid19.statistics.daily.by_dates_range.stream")
     public Flux<Covid19GeneralStatistic> streamCovid19DailyStatisticByDatesRange(
         Covid19DailyStatisticByDatesRangeRequest request
     ) {

@@ -21,7 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/covid19-general-statistic", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/covid19-statistics/general", produces = MediaType.APPLICATION_JSON_VALUE)
 public class Covid19GeneralStatisticUtilsController {
 
     private final Covid19StatisticService covid19StatisticService;
