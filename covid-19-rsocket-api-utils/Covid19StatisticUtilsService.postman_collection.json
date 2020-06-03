@@ -6,180 +6,456 @@
 	},
 	"item": [
 		{
-			"name": "Add multiple Covid19StatisticTotals",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"data\": [\r\n\t\t{\r\n\t\t\t\"countryCode\": \"UA\",\r\n\t\t\t\"totalConfirmed\": 1000,\r\n\t\t\t\"totalDeaths\": 100,\r\n\t\t\t\"totalRecovered\": 50\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"countryCode\": \"PL\",\r\n\t\t\t\"totalConfirmed\": 2600,\r\n\t\t\t\"totalDeaths\": 520,\r\n\t\t\t\"totalRecovered\": 145\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"countryCode\": \"US\",\r\n\t\t\t\"totalConfirmed\": 2600,\r\n\t\t\t\"totalDeaths\": 520,\r\n\t\t\t\"totalRecovered\": 145\r\n\t\t}\r\n\t]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "general_statistic",
+			"item": [
+				{
+					"name": "Get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/general",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"general"
+							]
 						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/general/87e4a187-ba7f-4ae7-ac85-2cfd9936e898",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"general",
+								"87e4a187-ba7f-4ae7-ac85-2cfd9936e898"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get max",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/general/max",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"general",
+								"max"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"datasource\": \"CUSTOM_API\",\r\n\t\"countryCode\": \"PL\",\r\n\t\"confirmed\": 2600,\r\n\t\"deaths\": 520,\r\n\t\"recovered\": 145\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/covid19-statistics/general",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"general"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add multiple",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"data\": [\r\n\t\t{\r\n\t\t\t\"datasource\": \"CUSTOM_API\",\r\n\t\t\t\"countryCode\": \"UA\",\r\n\t\t\t\"confirmed\": 1000,\r\n\t\t\t\"deaths\": 100,\r\n\t\t\t\"recovered\": 50\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"datasource\": \"CUSTOM_API\",\r\n\t\t\t\"countryCode\": \"PL\",\r\n\t\t\t\"confirmed\": 2600,\r\n\t\t\t\"deaths\": 520,\r\n\t\t\t\"recovered\": 145\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"datasource\": \"CUSTOM_API\",\r\n\t\t\t\"countryCode\": \"US\",\r\n\t\t\t\"confirmed\": 2600,\r\n\t\t\t\"deaths\": 520,\r\n\t\t\t\"recovered\": 145\r\n\t\t}\r\n\t]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/covid19-statistics/general/multiple",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"general",
+								"multiple"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"countryCode\": \"RU\",\n    \"datasource\": \"FACEBOOK\",\n    \"confirmed\": 50000,\n    \"deaths\": 520,\n    \"recovered\": 145\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/covid19-statistics/general/7bc44788-5d15-4105-84aa-3ea34827f4a8",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"general",
+								"7bc44788-5d15-4105-84aa-3ea34827f4a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete all",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/general",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"general"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/general/e10417ee-a9a7-44fe-8619-e7a57dc77de1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"general",
+								"e10417ee-a9a7-44fe-8619-e7a57dc77de1"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "46351c2e-2699-478b-a360-aa3a5aed460a",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
 					}
 				},
-				"url": {
-					"raw": "{{url}}/covid19-statistics/total/multiple",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"covid19-statistics",
-						"total",
-						"multiple"
-					]
+				{
+					"listen": "test",
+					"script": {
+						"id": "6b1f9edb-0443-4fbf-971d-e398f081899b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
-			},
-			"response": []
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "Add Covid19StatisticTotal",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"countryCode\": \"PL\",\r\n\t\"totalConfirmed\": 2600,\r\n\t\"totalDeaths\": 520,\r\n\t\"totalRecovered\": 145\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "daily_statistic",
+			"item": [
+				{
+					"name": "Get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily"
+							]
 						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get aggregated by dates range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily/aggregated?startDateStr=2020-05-17&endDateStr=2020-05-20",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily",
+								"aggregated"
+							],
+							"query": [
+								{
+									"key": "startDateStr",
+									"value": "2020-05-17"
+								},
+								{
+									"key": "endDateStr",
+									"value": "2020-05-20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get aggregated by dates range and county code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily/aggregated/country_code?startDateStr=2020-05-17&endDateStr=2020-05-20&countryCode=UA",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily",
+								"aggregated",
+								"country_code"
+							],
+							"query": [
+								{
+									"key": "startDateStr",
+									"value": "2020-05-17"
+								},
+								{
+									"key": "endDateStr",
+									"value": "2020-05-20"
+								},
+								{
+									"key": "countryCode",
+									"value": "UA"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily/44769a60-47e9-4d9c-bf15-11cf12bfd1e9",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily",
+								"44769a60-47e9-4d9c-bf15-11cf12bfd1e9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"datasource\": \"CUSTOM_API\",\n    \"countryCode\": \"UA\",\n    \"confirmed\": 250,\n    \"deaths\": 12,\n    \"recovered\": 52,\n    \"date\": \"2020-05-19\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add multiple",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": [\n        {\n            \"datasource\": \"CUSTOM_API\",\n            \"countryCode\": \"UA\",\n            \"confirmed\": 250,\n            \"deaths\": 12,\n            \"recovered\": 52,\n            \"date\": \"2020-05-19\"\n        },\n        {\n            \"datasource\": \"CUSTOM_API\",\n            \"countryCode\": \"UA\",\n            \"confirmed\": 310,\n            \"deaths\": 10,\n            \"recovered\": 6,\n            \"date\": \"2020-05-20\"\n        },\n        {\n            \"datasource\": \"CUSTOM_API\",\n            \"countryCode\": \"UA\",\n            \"confirmed\": 569,\n            \"deaths\": 9,\n            \"recovered\": 15,\n            \"date\": \"2020-05-21\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily/multiple",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily",
+								"multiple"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"datasource\": \"CUSTOM_API\",\n    \"countryCode\": \"UA\",\n    \"confirmed\": 250,\n    \"deaths\": 12,\n    \"recovered\": 50,\n    \"date\": \"2020-05-19\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily/44769a60-47e9-4d9c-bf15-11cf12bfd1e9",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily",
+								"44769a60-47e9-4d9c-bf15-11cf12bfd1e9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete all",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/covid19-statistics/daily/44769a60-47e9-4d9c-bf15-11cf12bfd1e9",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"covid19-statistics",
+								"daily",
+								"44769a60-47e9-4d9c-bf15-11cf12bfd1e9"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "812ef01c-220f-48e4-b215-d444b96b30f2",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
 					}
 				},
-				"url": {
-					"raw": "{{url}}/covid19-statistics/total",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"covid19-statistics",
-						"total"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Edit Covid19StatisticTotal",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"countryCode\": \"PL\",\n    \"totalConfirmed\": 50000,\n    \"totalDeaths\": 520,\n    \"totalRecovered\": 145,\n    \"lastModifiedAt\": \"2020-05-18T16:09:31.24\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
+				{
+					"listen": "test",
+					"script": {
+						"id": "ea6a790c-97e3-4def-9724-038d0df164dc",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
 					}
-				},
-				"url": {
-					"raw": "{{url}}/covid19-statistics/total/ea137ec2-0b3e-481f-9f1b-4fb09c9c6f3b",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"covid19-statistics",
-						"total",
-						"ea137ec2-0b3e-481f-9f1b-4fb09c9c6f3b"
-					]
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all Covid19StatisticTotals",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/covid19-statistics/total",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"covid19-statistics",
-						"total"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get max Covid19StatisticTotal",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/covid19-statistics/total/max",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"covid19-statistics",
-						"total",
-						"max"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Covid19StatisticTotals by id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/covid19-statistics/total/87e4a187-ba7f-4ae7-ac85-2cfd9936e898",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"covid19-statistics",
-						"total",
-						"87e4a187-ba7f-4ae7-ac85-2cfd9936e898"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete all Covid19StatisticTotals",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/covid19-statistics/total",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"covid19-statistics",
-						"total"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete Covid19StatisticTotal by id",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/covid19-statistics/total/e10417ee-a9a7-44fe-8619-e7a57dc77de1",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"covid19-statistics",
-						"total",
-						"e10417ee-a9a7-44fe-8619-e7a57dc77de1"
-					]
-				}
-			},
-			"response": []
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"protocolProfileBehavior": {}
