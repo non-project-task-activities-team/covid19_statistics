@@ -176,7 +176,7 @@ class CountiesMap extends Component {
     self.maxGeneralConfirmed = 0;
     let features = self.countriesVectorLayer.getSource().getFeatures();
     features.forEach(feature => {
-      feature.server_data = null;
+      feature.server_data = undefined;
       feature.setStyle(self.getFeatureStyle(feature));
     });
     let startDate = state.startDate.format("YYYY-MM-DD");
