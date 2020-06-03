@@ -229,7 +229,7 @@ class CountiesMap extends Component {
   getCountriesVectorLayer() {
     let self = this;
     let source = new VectorSource({
-      url: 'counties.geo.json',
+      url: 'counties-low-resolution.geo.json',
       format: new GeoJSON()
     });
     return new VectorLayer({
