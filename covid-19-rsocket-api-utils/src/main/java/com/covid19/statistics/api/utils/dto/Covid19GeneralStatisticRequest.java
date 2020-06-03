@@ -1,6 +1,5 @@
 package com.covid19.statistics.api.connector.dto;
 
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +11,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Covid19StatisticsByDateRequest {
+public class Covid19GeneralStatisticRequest {
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private Integer max;
 }

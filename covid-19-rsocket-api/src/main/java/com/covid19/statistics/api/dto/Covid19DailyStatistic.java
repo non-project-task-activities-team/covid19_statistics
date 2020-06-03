@@ -1,4 +1,4 @@
-package com.covid19.statistics.api.utils.dto;
+package com.covid19.statistics.api.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,15 +14,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document
-public class Covid19StatisticsByDate {
+@Document("daily_statistic")
+public class Covid19DailyStatistic {
 
     @Id
     private UUID id;
+    private String datasource;
     private String countryCode;
-    private Integer totalConfirmed;
-    private Integer totalDeaths;
-    private Integer totalRecovered;
-    private LocalDateTime timestamp;
     private LocalDate date;
+    private Integer confirmed;
+    private Integer deaths;
+    private Integer recovered;
+    private LocalDateTime lastModifiedAt;
 }

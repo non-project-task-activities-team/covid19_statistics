@@ -11,7 +11,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Covid19StatisticTotalRequest {
+public class Covid19GeneralStatisticRequest {
 
     private Integer max;
 }

@@ -1,28 +1,28 @@
-package com.covid19.statistics.api.dto;
+package com.covid19.statistics.api.connector.dto;
 
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document
-public class Covid19StatisticsByDate {
+public class Covid19GeneralStatistic {
 
-    @Id
+    @JsonInclude(Include.NON_ABSENT)
     private UUID id;
     private String countryCode;
     private Integer totalConfirmed;
     private Integer totalDeaths;
     private Integer totalRecovered;
+    @JsonInclude(Include.NON_ABSENT)
     private LocalDateTime timestamp;
-    private LocalDate date;
 }

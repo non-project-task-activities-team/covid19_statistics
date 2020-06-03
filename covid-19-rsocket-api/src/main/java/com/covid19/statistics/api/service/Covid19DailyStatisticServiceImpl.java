@@ -5,8 +5,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.matc
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 
-import com.covid19.statistics.api.dto.Covid19StatisticTotal;
-import com.covid19.statistics.api.dto.Covid19StatisticsByDate;
+import com.covid19.statistics.api.dto.Covid19DailyStatistic;
+import com.covid19.statistics.api.dto.Covid19GeneralStatistic;
 import java.time.LocalDate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -18,16 +18,16 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 @Service
-public class Covid19StatisticsByDateServiceImpl implements Covid19StatisticsByDateService {
+public class Covid19DailyStatisticServiceImpl implements Covid19DailyStatisticService {
 
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
-    public Covid19StatisticsByDateServiceImpl(ReactiveMongoTemplate reactiveMongoTemplate) {
+    public Covid19DailyStatisticServiceImpl(ReactiveMongoTemplate reactiveMongoTemplate) {
         this.reactiveMongoTemplate = reactiveMongoTemplate;
     }
 
     @Override
-    public Flux<Covid19StatisticTotal> getCovid19StatisticsByDatesRange(
+    public Flux<Covid19GeneralStatistic> getCovid19StatisticsByDatesRange(
         LocalDate startDate, LocalDate endDate
     ) {
         MatchOperation matchOperation =
@@ -37,14 +37,14 @@ public class Covid19StatisticsByDateServiceImpl implements Covid19StatisticsByDa
             );
 
         ProjectionOperation projectionOperation =
-            project("countryCode", "totalConfirmed", "totalDeaths", "totalRecovered")
+            project("countryCode", "confirmed", "deaths", "recovered")
                 .and("countryCode").previousOperation();
 
         GroupOperation groupOperation =
             group("countryCode")
-                .sum("totalConfirmed").as("totalConfirmed")
-                .sum("totalDeaths").as("totalDeaths")
-                .sum("totalRecovered").as("totalRecovered");
+                .sum("confirmed").as("confirmed")
+                .sum("deaths").as("deaths")
+                .sum("recovered").as("recovered");
 
         Aggregation aggregation =
             newAggregation(
@@ -56,8 +56,8 @@ public class Covid19StatisticsByDateServiceImpl implements Covid19StatisticsByDa
         return
             reactiveMongoTemplate.aggregate(
                 aggregation,
-                Covid19StatisticsByDate.class,
-                Covid19StatisticTotal.class
+                Covid19DailyStatistic.class,
+                Covid19GeneralStatistic.class
             );
     }
 }

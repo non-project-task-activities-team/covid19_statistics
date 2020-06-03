@@ -5,8 +5,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.matc
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 
-import com.covid19.statistics.api.utils.dto.Covid19StatisticTotal;
-import com.covid19.statistics.api.utils.dto.Covid19StatisticsByDate;
+import com.covid19.statistics.api.utils.dto.Covid19DailyStatistic;
+import com.covid19.statistics.api.utils.dto.Covid19GeneralStatistic;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -27,28 +27,28 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/covid19-statistics/date", produces = MediaType.APPLICATION_JSON_VALUE)
-public class Covid19StatisticByDateUtilsController {
+@RequestMapping(value = "/covid19-daily-statistic", produces = MediaType.APPLICATION_JSON_VALUE)
+public class Covid19DailyStatisticUtilsController {
 
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
-    public Covid19StatisticByDateUtilsController(
+    public Covid19DailyStatisticUtilsController(
         final ReactiveMongoTemplate reactiveMongoTemplate
     ) {
         this.reactiveMongoTemplate = reactiveMongoTemplate;
     }
 
     @PostMapping
-    public Mono<Covid19StatisticsByDate> streamCovid19StatisticsByDatesRange(
-        @RequestBody Covid19StatisticsByDate covid19StatisticsByDate
+    public Mono<Covid19DailyStatistic> streamCovid19DailyStatisticByDatesRange(
+        @RequestBody Covid19DailyStatistic covid19DailyStatistic
     ) {
-        covid19StatisticsByDate.setId(UUID.randomUUID());
-        covid19StatisticsByDate.setTimestamp(LocalDateTime.now());
-        return reactiveMongoTemplate.save(covid19StatisticsByDate);
+        covid19DailyStatistic.setId(UUID.randomUUID());
+        covid19DailyStatistic.setLastModifiedAt(LocalDateTime.now());
+        return reactiveMongoTemplate.save(covid19DailyStatistic);
     }
 
     @GetMapping
-    public Flux<Covid19StatisticTotal> streamCovid19StatisticsByDatesRange(
+    public Flux<Covid19GeneralStatistic> streamCovid19StatisticsByDatesRange(
         @RequestParam String startDateStr,
         @RequestParam String endDateStr
     ) {
@@ -62,14 +62,14 @@ public class Covid19StatisticByDateUtilsController {
             );
 
         ProjectionOperation projectionOperation =
-            project("countryCode", "totalConfirmed", "totalDeaths", "totalRecovered")
+            project("countryCode", "confirmed", "deaths", "recovered")
                 .and("countryCode").previousOperation();
 
         GroupOperation groupOperation =
             group("countryCode")
-                .sum("totalConfirmed").as("totalConfirmed")
-                .sum("totalDeaths").as("totalDeaths")
-                .sum("totalRecovered").as("totalRecovered");
+                .sum("confirmed").as("confirmed")
+                .sum("deaths").as("deaths")
+                .sum("recovered").as("recovered");
 
         Aggregation aggregation =
             newAggregation(
@@ -81,8 +81,8 @@ public class Covid19StatisticByDateUtilsController {
         return
             reactiveMongoTemplate.aggregate(
                 aggregation,
-                Covid19StatisticsByDate.class,
-                Covid19StatisticTotal.class
+                Covid19DailyStatistic.class,
+                Covid19GeneralStatistic.class
             );
     }
 }

@@ -2,8 +2,8 @@ package com.covid19.statistics.api.service;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 
-import com.covid19.statistics.api.dto.Covid19StatisticTotal;
-import com.covid19.statistics.api.repository.Covid19StatisticsTotalRepository;
+import com.covid19.statistics.api.dto.Covid19GeneralStatistic;
+import com.covid19.statistics.api.repository.Covid19GeneralStatisticRepository;
 import com.mongodb.client.model.changestream.OperationType;
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -17,15 +17,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-public class Covid19StatisticsTotalServiceImpl implements Covid19StatisticsTotalService {
+public class Covid19GeneralStatisticServiceImpl implements Covid19GeneralStatisticService {
 
     private static final String OPERATION_TYPE_CRITERIA_KEY = "operationType";
 
-    private final Covid19StatisticsTotalRepository covid19StatisticsTotalRepository;
+    private final Covid19GeneralStatisticRepository covid19StatisticsTotalRepository;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
-    public Covid19StatisticsTotalServiceImpl(
-        Covid19StatisticsTotalRepository covid19StatisticsTotalRepository,
+    public Covid19GeneralStatisticServiceImpl(
+        Covid19GeneralStatisticRepository covid19StatisticsTotalRepository,
         ReactiveMongoTemplate reactiveMongoTemplate
     ) {
         this.covid19StatisticsTotalRepository = covid19StatisticsTotalRepository;
@@ -33,17 +33,17 @@ public class Covid19StatisticsTotalServiceImpl implements Covid19StatisticsTotal
     }
 
     @Override
-    public Flux<Covid19StatisticTotal> findAll() {
+    public Flux<Covid19GeneralStatistic> findAll() {
         return covid19StatisticsTotalRepository.findAll();
     }
 
     @Override
-    public Mono<Covid19StatisticTotal> findFirstByOrderByTotalConfirmedDesc() {
-        return covid19StatisticsTotalRepository.findFirstByOrderByTotalConfirmedDesc();
+    public Mono<Covid19GeneralStatistic> findFirstByOrderByConfirmedDesc() {
+        return covid19StatisticsTotalRepository.findFirstByOrderByConfirmedDesc();
     }
 
     @Override
-    public Flux<ChangeStreamEvent<Covid19StatisticTotal>> streamCollectionUpdates(
+    public Flux<ChangeStreamEvent<Covid19GeneralStatistic>> streamCollectionUpdates(
         OperationType... operationTypes
     ) {
         if (operationTypes == null || operationTypes.length == 0) {
@@ -60,8 +60,8 @@ public class Covid19StatisticsTotalServiceImpl implements Covid19StatisticsTotal
         Aggregation aggregation = newAggregation(matchOperation);
 
         return
-            reactiveMongoTemplate.changeStream(Covid19StatisticTotal.class)
-                .watchCollection(Covid19StatisticTotal.class)
+            reactiveMongoTemplate.changeStream(Covid19GeneralStatistic.class)
+                .watchCollection(Covid19GeneralStatistic.class)
                 .filter(aggregation)
                 .listen()
                 .cache(Duration.ofSeconds(1));
