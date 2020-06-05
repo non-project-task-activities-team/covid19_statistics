@@ -66,15 +66,16 @@ public class KafkaTopologyApplication {
     }
     private AggregatedCountry aggregateAmount(String key, Country country, AggregatedCountry aggregatedCountry) {
         aggregatedCountry.setCountryCode(country.getCountryCode());
-        aggregatedCountry.setTotalConfirmed(aggregatedCountry.getTotalConfirmed() + Integer.parseInt(country.getConfirmed()));
-        aggregatedCountry.setTotalRecovered(aggregatedCountry.getTotalRecovered() + Integer.parseInt(country.getRecovered()));
+        aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() + Integer.parseInt(country.getConfirmed()));
+        aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() + Integer.parseInt(country.getRecovered()));
+        aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() + Integer.parseInt(country.getDeaths()));
         log.info("Inside aggregateAmount + " + aggregatedCountry);
         return aggregatedCountry;
     }
     private AggregatedCountry initialize() {
         return AggregatedCountry.builder()
-                .totalConfirmed(0)
-                .totalRecovered(0)
+                .confirmed(0)
+                .recovered(0)
                 .build();
     }
     private List<DailyStatistics> initializeDailyStatistics() {
@@ -86,7 +87,7 @@ public class KafkaTopologyApplication {
                 .confirmed(country.getConfirmed())
                 .deaths(country.getDeaths())
                 .recovered(country.getRecovered())
-                .date(country.getDay()).build());
+                .day(country.getDay()).build());
         log.info("Inside dailyStatistics + " + dailyStatistics);
         return dailyStatistics;
     }

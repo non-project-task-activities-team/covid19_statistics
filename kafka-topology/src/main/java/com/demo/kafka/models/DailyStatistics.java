@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class DailyStatistics {
     private String countryCode;
-    private String date;
+    private String day;
     private String confirmed;
     private String recovered;
     private String deaths;

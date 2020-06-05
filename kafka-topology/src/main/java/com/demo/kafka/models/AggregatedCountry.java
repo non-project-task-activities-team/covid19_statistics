@@ -12,6 +12,7 @@ import java.util.List;
 public class AggregatedCountry {
 
     private String countryCode;
-    private Integer totalConfirmed;
-    private Integer totalRecovered;
+    private Integer confirmed;
+    private Integer recovered;
+    private Integer deaths;
 }
