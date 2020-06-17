@@ -4,9 +4,9 @@ spring.cloud.stream:
     process-in-0:
       destination: countries
     process-out-0:
-      destination: aggregated
+      destination: aggregated-statistic
     daily-out-0:
-      destination: daily
+      destination: daily-statistic
   kafka:
     streams:
       binder:

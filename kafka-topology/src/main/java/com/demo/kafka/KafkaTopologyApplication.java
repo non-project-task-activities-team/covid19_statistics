@@ -31,7 +31,7 @@ public class KafkaTopologyApplication {
         SpringApplication.run(KafkaTopologyApplication.class, args);
     }
     @StreamListener("countries")
-    @SendTo("aggregated")
+    @SendTo("aggregated-statistic")
     public KStream<?, AggregatedCountry> process(KStream<Object, Country> input) {
         return input
                 .groupBy((key, value) -> value.getCountryCode())
@@ -44,7 +44,7 @@ public class KafkaTopologyApplication {
                 .map((key, value) -> new KeyValue<>(null, value));
     }
     @StreamListener("countries")
-    @SendTo("daily")
+    @SendTo("daily-statistic")
     public KStream<?, List<DailyStatistics>> daily(KStream<Object, Country> input) {
         return input
                 .groupBy((key, value) -> value.getCountryCode())
@@ -59,9 +59,9 @@ public class KafkaTopologyApplication {
     interface KStreamProcessorWithBranches {
         @Input("countries")
         KStream<?, ?> countries();
-        @Output("aggregated")
+        @Output("aggregated-statistic")
         KStream<?, ?> aggregated();
-        @Output("daily")
+        @Output("daily-statistic")
         KStream<?, ?> daily();
     }
     private AggregatedCountry aggregateAmount(String key, Country country, AggregatedCountry aggregatedCountry) {
