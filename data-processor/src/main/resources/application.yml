@@ -1,0 +1,18 @@
+server:
+  port: 9000
+spring:
+  data:
+    mongodb:
+      host: localhost
+#      host: 34.68.108.236
+      port: 27017
+      database: statistic
+kafka:
+  bootstrap-address: localhost:9092
+  group-id: statistic
+  topics:
+    general-statistic:
+      name: general-statistic
+    daily-statistic:
+      name: daily-statistic
+
