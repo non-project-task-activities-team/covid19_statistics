@@ -19,8 +19,7 @@ public class KafkaConsumer {
     private GeneralStatisticMongoRepository generalStatisticMongoRepository;
 
     @KafkaListener(
-            topics = "${kafka.topics.general-statistic.name}",
-            groupId = "statistic",
+            topics = "${kafka.topics.aggregated-statistic.name}",
             containerFactory = "generalStatisticKafkaListenerContainerFactory")
     public void consumeGeneralStatisticMessage(GeneralStatistic message) {
         log.info("message consumed:" + message);
@@ -29,7 +28,6 @@ public class KafkaConsumer {
 
     @KafkaListener(
             topics = "${kafka.topics.daily-statistic.name}",
-            groupId = "statistic",
             containerFactory = "dailyStatisticKafkaListenerContainerFactory")
     public void consumeDailyStatisticMessage(DailyStatistic message) {
         log.info("message consumed:" + message);
