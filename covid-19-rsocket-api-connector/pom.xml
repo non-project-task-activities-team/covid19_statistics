@@ -11,7 +11,7 @@
   </parent>
   <groupId>com.covid19.statistics.api.connector</groupId>
   <artifactId>covid-19-rsocket-api-connector</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <properties>
     <java.version>11</java.version>
