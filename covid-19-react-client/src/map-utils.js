@@ -2,7 +2,7 @@
 export class MapUtils {
 
   static calculateColor(maximal, value, opacity) {
-    if(maximal < 1) {
+    if(maximal === undefined || maximal < 1) {
       maximal = 1; // to avoid "black" map
     }
     let percent = value / maximal * 100;
