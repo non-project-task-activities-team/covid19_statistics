@@ -10,6 +10,9 @@ spring.cloud.stream:
   kafka:
     streams:
       binder:
+        brokers: "b-1.awskafkatutorialclu.tfuxdb.c3.kafka.eu-central-1.amazonaws.com:9094,
+        b-3.awskafkatutorialclu.tfuxdb.c3.kafka.eu-central-1.amazonaws.com:9094,
+        b-2.awskafkatutorialclu.tfuxdb.c3.kafka.eu-central-1.amazonaws.com:9094"+
         applicationId: kafka-stream
         configuration:
           commit.interval.ms: 100

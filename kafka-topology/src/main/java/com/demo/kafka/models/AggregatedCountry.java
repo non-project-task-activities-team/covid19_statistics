@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class AggregatedCountry {
 
+    private String datasource;
     private String countryCode;
     private Integer confirmed;
     private Integer recovered;

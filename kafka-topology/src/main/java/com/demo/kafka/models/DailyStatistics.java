@@ -8,6 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class DailyStatistics {
+
+    private String datasource;
     private String countryCode;
     private String day;
     private String confirmed;
