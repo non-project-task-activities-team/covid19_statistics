@@ -16,13 +16,27 @@ class DatePicker extends Component {
       startDate: moment('2020-03-01'),
       endDate: moment(),
       focusedInput: null,
+      maxBackpresure: props.maxBackpresure
     }
+
+    this.minBackpresureValue = 0;
+    this.maxBackpresureValue = 1000000;
+
+    this.handleChange = this.handleChange.bind(this);
   }
 
   handleSubmit(event) {
     event.preventDefault();
     this.props.dateRangeSubmitButtonHandler(this.state);
     this.btn.setAttribute("disabled", "disabled");
+  }
+
+  handleChange(event) {
+    let maxBackpresure = event.target.value;
+    if(maxBackpresure > this.minBackpresureValue && maxBackpresure <= this.maxBackpresureValue) {
+      this.setState({maxBackpresure: maxBackpresure});
+      this.btn.removeAttribute("disabled");
+    }
   }
 
   render() {
@@ -47,8 +61,16 @@ class DatePicker extends Component {
                 firstDayOfWeek={1}
                 displayFormat={"DD/MM/YYYY"}
               />
-              <input className="btn btn-light mb-2" type="number" id="quantity" name="quantity"
-                pattern="\d*" min="1" max="1000000" placeholder="backpresure"
+              <input 
+                className="btn btn-light mb-2" 
+                type="number" 
+                id="quantity" 
+                name="quantity" 
+                min="1" 
+                max="1000000" 
+                placeholder="backpresure" 
+                value={this.state.maxBackpresure}
+                onChange={this.handleChange}
               />
               <button
                 type="button"

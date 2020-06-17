@@ -181,6 +181,7 @@ class CountiesMap extends Component {
     });
     let startDate = state.startDate.format("YYYY-MM-DD");
     let endDate = state.endDate.format("YYYY-MM-DD");
+    self.maxBackpresure = state.maxBackpresure;
     self.rSocketClient.streamCovid19StatisticsByDatesRange(self.maxBackpresure, startDate, endDate)
       .subscribe({
         onSubscribe: sub => self.backpressureCtrl.useSubscription(sub),
@@ -209,7 +210,7 @@ class CountiesMap extends Component {
   render() {
     return (
       <div>
-        <DatePicker dateRangeSubmitButtonHandler={this.dateRangeSubmitButtonHandler.bind(this)} />
+        <DatePicker maxBackpresure={this.maxBackpresure} dateRangeSubmitButtonHandler={this.dateRangeSubmitButtonHandler.bind(this)} />
         <div id="mapContainer">
           <div id="map" ref={this.setMapRef}></div>
           <div id="popup" className="ol-popup">
