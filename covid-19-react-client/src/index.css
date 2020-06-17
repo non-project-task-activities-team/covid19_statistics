@@ -105,3 +105,11 @@ code {
   margin-top: 8px;
   margin-left: 20px;
 }
+
+#quantity {
+  margin-top: 8px;
+  margin-left: 20px;
+  width: 10%;
+  min-width: 170px;
+  border: 1px rgba(0,0,0,0.1) solid;
+}
