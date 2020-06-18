@@ -11,7 +11,8 @@
     "react-scripts": "3.4.1",
     "reactstrap": "^8.4.1",
     "rsocket-core": "0.0.19",
-    "rsocket-websocket-client": "0.0.10"
+    "rsocket-websocket-client": "0.0.10",
+    "react-router-dom": "5.2.0"
   },
   "scripts": {
     "start": "react-scripts start",

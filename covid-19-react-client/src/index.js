@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import CountiesMap from './counties-map';
 import * as serviceWorker from './serviceWorker';
+import {BrowserRouter as Router, Switch, Route} from "react-router-dom";
 
 function App() {
   return (
@@ -13,11 +14,20 @@ function App() {
   );
 }
 
+const Root = () =>
+  <Router>
+    <Switch>
+      <Route exact path="/">
+        <App />
+      </Route>
+    </Switch>
+  </Router>
+
 export default App;
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Root />
   </React.StrictMode>,
   document.getElementById('root')
 );
