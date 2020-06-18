@@ -12,24 +12,22 @@ import java.util.Date;
 @EnableScheduling
 public class Scheduler {
 
-    @Autowired
-    CovidService covidService;
+    private CovidService covidService;
 
-    private static final int MINUTE = 60 * 1000;
+    @Autowired
+    public Scheduler(CovidService covidService) {
+        this.covidService = covidService;
+    }
 
     @Scheduled(fixedRate = 5 * 1000)
     public void executeCurrentData() {
 
         covidService.getCurrentData();
-
-        System.out.println(Thread.currentThread().getName() + " current covid data requested " + new Date());
     }
 
     @Scheduled(fixedRate = 60 * 1000)
     public void executeAllData() {
 
         covidService.getAllData();
-
-        System.out.println(Thread.currentThread().getName() + " all covid data requested " + new Date());
     }
 }
