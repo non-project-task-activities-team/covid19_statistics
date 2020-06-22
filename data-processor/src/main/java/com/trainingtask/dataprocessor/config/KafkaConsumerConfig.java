@@ -26,17 +26,27 @@ public class KafkaConsumerConfig {
     private String bootstrapAddress;
 
     public ConsumerFactory<String, GeneralStatistic> generalStatisticConsumerFactory() {
+        JsonDeserializer<GeneralStatistic> deserializer = new JsonDeserializer<>(GeneralStatistic.class);
+        deserializer.setRemoveTypeHeaders(false);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeMapperForKey(true);
+
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(GeneralStatistic.class));
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
     }
 
     public ConsumerFactory<String, DailyStatistic> dailyStatisticConsumerFactory() {
+        JsonDeserializer<DailyStatistic> deserializer = new JsonDeserializer<>(DailyStatistic.class);
+        deserializer.setRemoveTypeHeaders(false);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeMapperForKey(true);
+
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(DailyStatistic.class));
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
     }
 
     @Bean

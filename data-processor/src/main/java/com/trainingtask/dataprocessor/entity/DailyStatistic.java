@@ -24,13 +24,11 @@ public class DailyStatistic implements Statistic {
 
     @Id
     private String id;
-    @Field("country_code")
     private String countryCode;
     private LocalDate day;
     private String datasource;
     private Integer confirmed;
     private Integer deaths;
     private Integer recovered;
-    @Field("last_modified_at")
     private LocalDateTime lastModifiedAt;
 }

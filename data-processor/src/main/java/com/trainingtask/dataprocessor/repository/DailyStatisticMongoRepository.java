@@ -22,14 +22,14 @@ public class DailyStatisticMongoRepository implements MongoRepository<DailyStati
     public void upsert(DailyStatistic dailyStatistic) {
         Query query = new Query();
         query.addCriteria(Criteria
-                .where("country_code").is(dailyStatistic.getCountryCode())
+                .where("countryCode").is(dailyStatistic.getCountryCode().trim())
                 .and("day").is(dailyStatistic.getDay()));
 
         Update update = new Update();
         update.set("confirmed", dailyStatistic.getConfirmed());
         update.set("deaths", dailyStatistic.getDeaths());
         update.set("recovered", dailyStatistic.getRecovered());
-        update.set("last_modified_at", LocalDateTime.now());
+        update.set("lastModifiedAt", LocalDateTime.now());
 
         mongoTemplate.upsert(query, update, DailyStatistic.class);
     }

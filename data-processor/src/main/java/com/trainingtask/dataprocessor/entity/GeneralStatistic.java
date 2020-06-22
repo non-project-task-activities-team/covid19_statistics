@@ -20,16 +20,11 @@ public class GeneralStatistic implements Statistic {
 
     @Id
     private String id;
-    @Field("country_code")
     @Indexed(name = "country_code_index", direction = IndexDirection.DESCENDING)
     private String countryCode;
     private String datasource;
-    @Field("total_confirmed")
-    private Integer totalConfirmed;
-    @Field("total_deaths")
-    private Integer totalDeaths;
-    @Field("total_recovered")
-    private Integer totalRecovered;
-    @Field("last_modified_at")
+    private Integer confirmed;
+    private Integer deaths;
+    private Integer recovered;
     private LocalDateTime lastModifiedAt;
 }
