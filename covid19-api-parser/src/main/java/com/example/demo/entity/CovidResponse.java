@@ -50,4 +50,17 @@ public class CovidResponse {
                 .lastModifiedAt(LocalDateTime.now().toString())
                 .build();
     }
+
+    public static CovidResponse map(String countryCode, String date, String confirmed, String deaths) {
+        return CovidResponse.builder()
+                .id(UUID.randomUUID().toString())
+                .datasource(DATASOURCE)
+                .countryCode(countryCode)
+                .day(date)
+                .confirmed(confirmed)
+                .deaths(deaths)
+                .recovered(deaths)
+                .lastModifiedAt(LocalDateTime.now().toString())
+                .build();
+    }
 }

@@ -49,7 +49,7 @@ public class CovidService {
             CovidResponse country = CovidResponse.map(cntr);
             countryList.add(country);
         });
-        System.out.println( "Current data " + countryList.size());
+        System.out.println("Current data " + countryList.size());
         kafkaService.sendToTopic(countryList);
 
     }

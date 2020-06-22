@@ -15,17 +15,17 @@ import lombok.NoArgsConstructor;
 public class TimelineItemInfo {
 
     @JsonProperty("new_daily_cases")
-    private int  newDailyCases;
+    private String  newDailyCases;
 
     @JsonProperty("new_daily_deaths")
-    private int  newDailyDeaths;
+    private String  newDailyDeaths;
 
     @JsonProperty("total_cases")
-    private int  totalCases;
+    private String  totalCases;
 
     @JsonProperty("total_recoveries")
-    private int  totalRecoveries;
+    private String  totalRecoveries;
 
     @JsonProperty("total_deaths")
-    private int  totalDeaths;
+    private String  totalDeaths;
 }
