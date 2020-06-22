@@ -21,13 +21,13 @@ public class GeneralStatisticMongoRepository implements MongoRepository<GeneralS
     @Override
     public void upsert(GeneralStatistic generalStatistic) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("country_code").is(generalStatistic.getCountryCode()));
+        query.addCriteria(Criteria.where("countryCode").is(generalStatistic.getCountryCode().trim()));
 
         Update update = new Update();
-        update.set("total_deaths", generalStatistic.getTotalDeaths());
-        update.set("total_confirmed", generalStatistic.getTotalConfirmed());
-        update.set("total_recovered", generalStatistic.getTotalRecovered());
-        update.set("last_modified_at", LocalDateTime.now());
+        update.set("deaths", generalStatistic.getDeaths());
+        update.set("confirmed", generalStatistic.getConfirmed());
+        update.set("recovered", generalStatistic.getRecovered());
+        update.set("lastModifiedAt", LocalDateTime.now());
 
         mongoTemplate.upsert(query, update, GeneralStatistic.class);
     }
