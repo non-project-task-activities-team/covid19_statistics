@@ -70,12 +70,13 @@ class CountiesMap extends Component {
     let self = this;
     let popup = this.initPopup();
 
-    self.rSocketClient.connect().then(() =>
-        self.rSocketClient.getMaxGeneralCovid19Statistic(function (data) {
-          self.maxGeneralConfirmed = data.data.confirmed;
-          console.log("Current max general confirmed: " + self.maxGeneralConfirmed);
-        })
-    );
+    self.connection = 
+      self.rSocketClient.connect().then(() =>
+          self.rSocketClient.getMaxGeneralCovid19Statistic(function (data) {
+            self.maxGeneralConfirmed = data.data.confirmed;
+            console.log("Current max general confirmed: " + self.maxGeneralConfirmed);
+          })
+      );
 
     self.countriesVectorLayer = self.getCountriesVectorLayer();
     self.countiesMap = new Map({
@@ -148,12 +149,14 @@ class CountiesMap extends Component {
     self.countriesVectorLayer.getSource().on("change", function(e) {
       if(self.countriesVectorLayer.getSource().getState() === "ready" && !self.mapIsReady) {
         let features = self.countriesVectorLayer.getSource().getFeatures();
-        self.rSocketClient.streamGeneralCovid19Statistic(self.maxBackpresure)
-          .subscribe({
-            onSubscribe: sub => self.backpressureCtrl.useSubscription(sub),
-            onNext: payload => self.onNextRSocketStreamHandler(features, payload)
-          });
-        self.mapIsReady = true;
+        self.connection.then(() => {
+          self.rSocketClient.streamGeneralCovid19Statistic(self.maxBackpresure)
+            .subscribe({
+              onSubscribe: sub => self.backpressureCtrl.useSubscription(sub), 
+              onNext: payload => self.onNextRSocketStreamHandler(features, payload)
+            });
+          self.mapIsReady = true;
+        });
       }
     });
   }
