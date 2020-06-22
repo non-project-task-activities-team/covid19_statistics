@@ -19,11 +19,11 @@ public class Scheduler {
         this.covidService = covidService;
     }
 
-    @Scheduled(fixedRate = 5 * 1000)
-    public void executeCurrentData() {
-
-        covidService.getCurrentData();
-    }
+//    @Scheduled(fixedRate = 5 * 1000)
+//    public void executeCurrentData() {
+//
+//        covidService.getCurrentData();
+//    }
 
     @Scheduled(fixedRate = 60 * 1000)
     public void executeAllData() {

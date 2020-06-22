@@ -18,7 +18,7 @@ public class KafkaService {
     public void sendToTopic(List<CovidResponse> countryList) {
         Properties properties = new Properties();
         properties.put("application.id", "covid-19-api-parser");
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "3.120.190.247:9092");
         Producer<String, CovidResponse> kafkaProducer = new KafkaProducer<String, CovidResponse>(
                 properties,
                 new StringSerializer(),

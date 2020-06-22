@@ -1,11 +1,17 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.CountryCode;
 import com.example.demo.entity.CovidResponse;
-import com.example.demo.entity.allRequestApi.CovidApiAllData;
+import com.example.demo.entity.allRequestApi.TimelineItemInfo;
+import com.example.demo.entity.currentRequestApi.Country;
 import com.example.demo.entity.currentRequestApi.CovidApiCurrentData;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcabi.aspects.Cacheable;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -24,6 +29,8 @@ public class CovidService {
     private static final String BASE_COVID_URL = "https://api.covid19api.com";
     private static final String CURRENT_DAY_DATA_URL = BASE_COVID_URL + "/summary";
     private static final String ALL_DATA_URL = BASE_COVID_URL + "/all";
+    private static final String VIRUS_TRACKER_API_URL = "https://api.thevirustracker.com/free-api?countryTimeline=";
+    private static final String COUNTRY_CODES_API = "https://api.covid19api.com/countries";
 
     @Autowired
     KafkaService kafkaService;
@@ -55,25 +62,42 @@ public class CovidService {
     }
 
     public void getAllData() {
-        StringBuffer content = getContent(ALL_DATA_URL);
-
-        String wrappedContent = "{\n" +
-                "  \"countries\": \n" +
-                content + "}";
-
-        CovidApiAllData covidApiResponse = null;
+        StringBuffer countries = getContent(COUNTRY_CODES_API);
+        List<String> countryCodes = new ArrayList<>();
         try {
-            covidApiResponse = mapper.readValue(wrappedContent, CovidApiAllData.class);
+            List<CountryCode> coco = mapper.readValue(countries.toString(), new TypeReference<List<CountryCode>>() {
+            });
+            coco.forEach(c ->
+                    countryCodes.add(c.getCountryCode()));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
 
         List<CovidResponse> countryList = new ArrayList<>();
-        covidApiResponse.getCountries().forEach(cntr -> {
-            CovidResponse country = CovidResponse.map(cntr);
-            countryList.add(country);
+        countryCodes.forEach(countryCode -> {
+            String countryContent = getContent(VIRUS_TRACKER_API_URL + countryCode).toString();
+            try {
+                JSONObject jsonObject = new JSONObject(countryContent);
+                String timelines = jsonObject.getString("timelineitems");
+                if (!timelines.isEmpty()) {
+                    List<Map<String, Object>> asd = mapper.readValue(timelines, new TypeReference<List<Map<String, Object>>>() {
+                    });
+                    asd.get(0).remove("stat");
+                    for (Map.Entry<String, Object> entry : asd.get(0).entrySet()) {
+                        LinkedHashMap<String, Integer> data = (LinkedHashMap<String, Integer>) entry.getValue();
+                        String date = entry.getKey();
+                        String newDailyCases = data.get("new_daily_cases").toString();
+                        String newDailyDeaths = data.get("new_daily_deaths").toString();
+
+                        CovidResponse country = CovidResponse.map(countryCode, date, newDailyCases, newDailyDeaths);
+                        countryList.add(country);
+                    }
+                }
+            } catch (JSONException e) {
+            } catch (JsonMappingException e) {
+            } catch (JsonProcessingException e) {
+            }
         });
-        System.out.println( "all data " + countryList.size());
         kafkaService.sendToTopic(countryList);
     }
 
