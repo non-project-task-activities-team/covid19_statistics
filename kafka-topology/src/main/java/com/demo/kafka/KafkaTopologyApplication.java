@@ -30,7 +30,8 @@ public class KafkaTopologyApplication {
     public static void main(String[] args) {
         SpringApplication.run(KafkaTopologyApplication.class, args);
     }
-    @StreamListener("countries")
+
+    @StreamListener("countries1")
     @SendTo("aggregated-statistic")
     public KStream<?, AggregatedCountry> process(KStream<Object, Country> input) {
         return input
@@ -43,27 +44,36 @@ public class KafkaTopologyApplication {
                 .toStream()
                 .map((key, value) -> new KeyValue<>(null, value));
     }
-    @StreamListener("countries")
+
+    @StreamListener("countries2")
     @SendTo("daily-statistic")
-    public KStream<?, List<DailyStatistics>> daily(KStream<Object, Country> input) {
+    public KStream<?, DailyStatistics> daily(KStream<Object, Country> input) {
         return input
-                .groupBy((key, value) -> value.getCountryCode())
-                .aggregate(this::initializeDailyStatistics,
-                        this::dailyStatistics,
-                        materializedAsPersistentStore("daily", Serdes.String(),
-                                Serdes.serdeFrom(new JsonSerializer<>(),
-                                        new JsonDeserializer<>(List.class))))
-                .toStream()
-                .map((key, value) -> new KeyValue<>(null, value));
+                .map((key, value) -> new KeyValue<>(null, DailyStatistics.builder()
+                        .datasource(value.getDatasource())
+                        .countryCode(value.getCountryCode())
+                        .day(value.getDay())
+                        .confirmed(value.getConfirmed())
+                        .deaths(value.getDeaths())
+                        .recovered(value.getRecovered())
+                        .build()));
     }
+
     interface KStreamProcessorWithBranches {
-        @Input("countries")
-        KStream<?, ?> countries();
-        @Output("aggregated-statistic")
-        KStream<?, ?> aggregated();
+        @Input("countries1")
+        KStream<?, ?> countries1();
+
+        @Input("countries2")
+        KStream<?, ?> countries2();
+
         @Output("daily-statistic")
         KStream<?, ?> daily();
+
+        @Output("aggregated-statistic")
+        KStream<?, ?> aggregated();
+
     }
+
     private AggregatedCountry aggregateAmount(String key, Country country, AggregatedCountry aggregatedCountry) {
         aggregatedCountry.setCountryCode(country.getCountryCode());
         aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() + Integer.parseInt(country.getConfirmed()));
@@ -77,11 +87,15 @@ public class KafkaTopologyApplication {
         return AggregatedCountry.builder()
                 .confirmed(0)
                 .recovered(0)
+                .deaths(0)
+                .dailyStatistics(new ArrayList<>())
                 .build();
     }
+
     private List<DailyStatistics> initializeDailyStatistics() {
         return Collections.singletonList(DailyStatistics.builder().build());
     }
+
     private List<DailyStatistics> dailyStatistics(String key, Country country, List<DailyStatistics> dailyStatistics) {
         dailyStatistics.add(DailyStatistics.builder()
                 .countryCode(country.getCountryCode())

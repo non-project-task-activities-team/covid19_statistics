@@ -1,9 +1,15 @@
 spring.application.name: streams
 spring.cloud.stream:
   bindings:
-    process-in-0:
+    countries1:
       destination: countries
-    process-out-0:
+      consumer:
+        applicationId: countries1
+    countries2:
+      destination: countries
+      consumer:
+        applicationId: countries2
+    aggregated-out-0:
       destination: aggregated-statistic
     daily-out-0:
       destination: daily-statistic
