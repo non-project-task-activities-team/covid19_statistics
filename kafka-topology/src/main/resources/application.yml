@@ -1,0 +1,35 @@
+server.port: 8081
+#spring.application.name: streams
+spring.cloud.stream:
+  bindings:
+    countries1:
+      destination: countries
+      consumer:
+        applicationId: countries1
+    countries2:
+      destination: countries
+      consumer:
+        applicationId: countries2
+    aggregated-out-0:
+      destination: aggregated-statistic
+    daily-out-0:
+      destination: daily-statistic
+  kafka:
+    streams:
+      binder:
+#        brokers: 3.120.190.247
+        applicationId: kafka-stream
+        configuration:
+          commit.interval.ms: 100
+          default:
+            key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+            value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+#Enable metrics
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: metrics,health

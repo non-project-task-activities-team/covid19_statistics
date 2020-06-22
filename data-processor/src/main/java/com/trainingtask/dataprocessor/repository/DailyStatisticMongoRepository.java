@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Repository
 public class DailyStatisticMongoRepository implements MongoRepository<DailyStatistic> {
 
@@ -27,7 +29,7 @@ public class DailyStatisticMongoRepository implements MongoRepository<DailyStati
         update.set("confirmed", dailyStatistic.getConfirmed());
         update.set("deaths", dailyStatistic.getDeaths());
         update.set("recovered", dailyStatistic.getRecovered());
-        update.set("last_modified_at", dailyStatistic.getLastModifiedAt());
+        update.set("last_modified_at", LocalDateTime.now());
 
         mongoTemplate.upsert(query, update, DailyStatistic.class);
     }

@@ -24,10 +24,10 @@ public class KafkaController {
         this.dailyStatisticKafkaTemplate = dailyStatisticKafkaTemplate;
     }
 
-    @PostMapping(value = "/general-statistic")
+    @PostMapping(value = "/aggregated-statistic")
     public void sendGeneralStatisticMessageToKafkaTopic(
             @RequestBody GeneralStatistic message,
-            @Value("${kafka.topics.general-statistic.name}") String topic) {
+            @Value("${kafka.topics.aggregated-statistic.name}") String topic) {
 
         this.generalStatisticKafkaTemplate.send(topic, message);
     }

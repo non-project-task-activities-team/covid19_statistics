@@ -1,0 +1,19 @@
+logging:
+  level:
+    web: TRACE
+    com:
+      covid19:
+        statistics:
+          api:
+            connector: TRACE
+spring:
+  rsocket:
+    server:
+      transport: websocket
+      mapping-path: /rsocket
+api:
+  rsocket:
+    tcp:
+      host: localhost
+      port: 9898
+      retry: 5

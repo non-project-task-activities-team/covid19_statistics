@@ -3,16 +3,15 @@ server:
 spring:
   data:
     mongodb:
-      host: localhost
-#      host: 34.68.108.236
-      port: 27017
-      database: statistic
+      host: 18.157.141.251
+      port: 30000
+      database: covid19_statistics
 kafka:
   bootstrap-address: localhost:9092
   group-id: statistic
   topics:
-    general-statistic:
-      name: general-statistic
+    aggregated-statistic:
+      name: aggregated-statistic
     daily-statistic:
       name: daily-statistic
 
