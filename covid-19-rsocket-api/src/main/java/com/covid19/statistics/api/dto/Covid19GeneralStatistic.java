@@ -3,13 +3,13 @@ package com.covid19.statistics.api.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Data
 @Builder
@@ -18,9 +18,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("general_statistic")
 public class Covid19GeneralStatistic {
 
-    @Id
     @JsonInclude(Include.NON_ABSENT)
-    private UUID id;
+    @MongoId(value = FieldType.OBJECT_ID)
+    private String id;
     private String datasource;
     private String countryCode;
     private Integer confirmed;

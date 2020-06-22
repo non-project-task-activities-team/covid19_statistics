@@ -57,7 +57,7 @@ public class Covid19DailyStatisticController {
         for (int i = 0; i < amt; i++) {
             stat.add(
                 Covid19GeneralStatistic.builder()
-                    .id(UUID.randomUUID())
+//                    .id(UUID.randomUUID())
                     .build()
             );
         }

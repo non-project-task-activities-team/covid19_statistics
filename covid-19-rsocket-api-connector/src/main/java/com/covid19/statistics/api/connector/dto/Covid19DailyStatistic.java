@@ -16,7 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Covid19DailyStatistic {
 
-    private UUID id;
+    private String id;
     private String datasource;
     private String countryCode;
     private LocalDate date;

@@ -18,7 +18,7 @@ import lombok.Setter;
 public class Covid19GeneralStatistic {
 
     @JsonInclude(Include.NON_ABSENT)
-    private UUID id;
+    private String id;
     @JsonInclude(Include.NON_ABSENT)
     private String datasource;
     private String countryCode;
