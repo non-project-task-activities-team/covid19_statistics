@@ -10,10 +10,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Country {
+    private String id;
     private String datasource;
     private String countryCode;
     private String day;
-    private String lastModified;
+    private String lastModifiedAt;
     private String confirmed;
     private String recovered;
     private String deaths;

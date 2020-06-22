@@ -1,4 +1,5 @@
-spring.application.name: streams
+server.port: 8081
+#spring.application.name: streams
 spring.cloud.stream:
   bindings:
     countries1:
@@ -16,9 +17,7 @@ spring.cloud.stream:
   kafka:
     streams:
       binder:
-        brokers: "b-1.awskafkatutorialclu.tfuxdb.c3.kafka.eu-central-1.amazonaws.com:9094,
-        b-3.awskafkatutorialclu.tfuxdb.c3.kafka.eu-central-1.amazonaws.com:9094,
-        b-2.awskafkatutorialclu.tfuxdb.c3.kafka.eu-central-1.amazonaws.com:9094"+
+#        brokers: 3.120.190.247
         applicationId: kafka-stream
         configuration:
           commit.interval.ms: 100
@@ -34,13 +33,3 @@ management:
     web:
       exposure:
         include: metrics,health
-#Enable logging to debug for spring kafka config
-logging:
-  level:
-    org:
-      apache:
-        kafka:
-          clients:
-            consumer:
-              internals: DEBUG
-    org.springframework.kafka.config: debug

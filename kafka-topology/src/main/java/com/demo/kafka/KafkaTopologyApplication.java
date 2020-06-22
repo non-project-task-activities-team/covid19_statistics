@@ -1,6 +1,4 @@
 package com.demo.kafka;
-import java.util.Collections;
-import java.util.List;
 
 import com.demo.kafka.models.AggregatedCountry;
 import com.demo.kafka.models.Country;
@@ -23,6 +21,11 @@ import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.messaging.handler.annotation.SendTo;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @SpringBootApplication
 @EnableBinding(KafkaTopologyApplication.KStreamProcessorWithBranches.class)
@@ -75,14 +78,42 @@ public class KafkaTopologyApplication {
     }
 
     private AggregatedCountry aggregateAmount(String key, Country country, AggregatedCountry aggregatedCountry) {
-        aggregatedCountry.setCountryCode(country.getCountryCode());
-        aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() + Integer.parseInt(country.getConfirmed()));
-        aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() + Integer.parseInt(country.getRecovered()));
-        aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() + Integer.parseInt(country.getDeaths()));
-        aggregatedCountry.setDatasource(aggregatedCountry.getDatasource());
-        log.info("Inside aggregateAmount + " + aggregatedCountry);
+
+        Optional<DailyStatistics> daily = aggregatedCountry.getDailyStatistics().stream()
+                .filter(dailyStatistic -> dailyStatistic.getDay().equals(country.getDay()))
+                .findFirst();
+
+        if (daily.isPresent()) {
+            DailyStatistics statistic = daily.get();
+            aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() - Integer.parseInt(statistic.getConfirmed())
+                    + Integer.parseInt(country.getConfirmed()));
+            aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() - Integer.parseInt(statistic.getRecovered())
+                    + Integer.parseInt(country.getRecovered()));
+            aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() - Integer.parseInt(statistic.getDeaths())
+                    + Integer.parseInt(country.getDeaths()));
+
+            statistic.setConfirmed(country.getConfirmed());
+            statistic.setRecovered(country.getRecovered());
+            statistic.setDeaths(country.getDeaths());
+
+        } else {
+            aggregatedCountry.getDailyStatistics().add(DailyStatistics.builder()
+                    .confirmed(country.getConfirmed())
+                    .deaths(country.getDeaths())
+                    .recovered(country.getRecovered())
+                    .day(country.getDay())
+                    .build());
+
+            aggregatedCountry.setCountryCode(country.getCountryCode());
+            aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() + Integer.parseInt(country.getConfirmed()));
+            aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() + Integer.parseInt(country.getRecovered()));
+            aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() + Integer.parseInt(country.getDeaths()));
+            aggregatedCountry.setDatasource(aggregatedCountry.getDatasource());
+            log.info("Inside aggregateAmount + " + aggregatedCountry);
+        }
         return aggregatedCountry;
     }
+
     private AggregatedCountry initialize() {
         return AggregatedCountry.builder()
                 .confirmed(0)
@@ -93,7 +124,7 @@ public class KafkaTopologyApplication {
     }
 
     private List<DailyStatistics> initializeDailyStatistics() {
-        return Collections.singletonList(DailyStatistics.builder().build());
+        return new ArrayList<>();
     }
 
     private List<DailyStatistics> dailyStatistics(String key, Country country, List<DailyStatistics> dailyStatistics) {

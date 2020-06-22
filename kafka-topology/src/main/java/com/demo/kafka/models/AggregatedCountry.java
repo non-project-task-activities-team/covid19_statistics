@@ -9,6 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class AggregatedCountry {
 
     private String datasource;
@@ -16,4 +17,5 @@ public class AggregatedCountry {
     private Integer confirmed;
     private Integer recovered;
     private Integer deaths;
+    private List<DailyStatistics> dailyStatistics;
 }
