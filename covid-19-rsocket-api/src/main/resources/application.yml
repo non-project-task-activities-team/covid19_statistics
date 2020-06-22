@@ -1,0 +1,22 @@
+logging:
+  level:
+    web: TRACE
+    com:
+      covid19:
+        statistics:
+          api: TRACE
+spring:
+  rsocket:
+    server:
+      transport: tcp
+      port: 9898
+  data:
+    mongodb:
+      authentication-database: admin
+      username: root
+      password: root
+      database: covid19_statistics
+      port: 40000
+      host: localhost
+      repositories:
+        type: reactive
