@@ -88,31 +88,9 @@ public class KafkaTopologyApplication {
                 .findFirst();
 
         if (daily.isPresent()) {
-            DailyStatistics statistic = daily.get();
-            aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() - Integer.parseInt(statistic.getConfirmed())
-                    + Integer.parseInt(country.getConfirmed()));
-            aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() - Integer.parseInt(statistic.getRecovered())
-                    + Integer.parseInt(country.getRecovered()));
-            aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() - Integer.parseInt(statistic.getDeaths())
-                    + Integer.parseInt(country.getDeaths()));
-
-            statistic.setConfirmed(country.getConfirmed());
-            statistic.setRecovered(country.getRecovered());
-            statistic.setDeaths(country.getDeaths());
-
+            populateDaily(country, aggregatedCountry, daily);
         } else {
-            aggregatedCountry.getDailyStatistics().add(DailyStatistics.builder()
-                    .confirmed(country.getConfirmed())
-                    .deaths(country.getDeaths())
-                    .recovered(country.getRecovered())
-                    .day(parseDay(country.getDay()))
-                    .build());
-
-            aggregatedCountry.setCountryCode(country.getCountryCode());
-            aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() + Integer.parseInt(country.getConfirmed()));
-            aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() + Integer.parseInt(country.getRecovered()));
-            aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() + Integer.parseInt(country.getDeaths()));
-            aggregatedCountry.setDatasource(aggregatedCountry.getDatasource());
+            populateIfNotPresent(country, aggregatedCountry);
         }
         return aggregatedCountry;
     }
@@ -152,7 +130,36 @@ public class KafkaTopologyApplication {
                 .withValueSerde(valueSerde);
     }
 
+    private void populateDaily(Country country, AggregatedCountry aggregatedCountry, Optional<DailyStatistics> daily) {
+        DailyStatistics statistic = daily.get();
+        aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() - Integer.parseInt(statistic.getConfirmed())
+                + Integer.parseInt(country.getConfirmed()));
+        aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() - Integer.parseInt(statistic.getRecovered())
+                + Integer.parseInt(country.getRecovered()));
+        aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() - Integer.parseInt(statistic.getDeaths())
+                + Integer.parseInt(country.getDeaths()));
+
+        statistic.setConfirmed(country.getConfirmed());
+        statistic.setRecovered(country.getRecovered());
+        statistic.setDeaths(country.getDeaths());
+    }
+
     private LocalDate parseDay(String day) {
         return LocalDate.parse(day, DateTimeFormatter.ofPattern("M/dd/yy"));
+    }
+
+    private void populateIfNotPresent(Country country, AggregatedCountry aggregatedCountry) {
+        aggregatedCountry.getDailyStatistics().add(DailyStatistics.builder()
+                .confirmed(country.getConfirmed())
+                .deaths(country.getDeaths())
+                .recovered(country.getRecovered())
+                .day(parseDay(country.getDay()))
+                .build());
+
+        aggregatedCountry.setCountryCode(country.getCountryCode());
+        aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() + Integer.parseInt(country.getConfirmed()));
+        aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() + Integer.parseInt(country.getRecovered()));
+        aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() + Integer.parseInt(country.getDeaths()));
+        aggregatedCountry.setDatasource(aggregatedCountry.getDatasource());
     }
 }
