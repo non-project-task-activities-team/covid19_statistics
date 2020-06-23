@@ -26,7 +26,7 @@ class CountiesMap extends Component {
     this.showPopupInFeatureCenter = false;
     this.popupIsShown = false;
     this.mapIsReady = false;
-    this.maxBackpresure = 100;
+    this.maxBackpresure = 10000;
 
     this.rSocketClient =
       new ApiRSocketClient(
@@ -233,7 +233,7 @@ class CountiesMap extends Component {
   getCountriesVectorLayer() {
     let self = this;
     let source = new VectorSource({
-      url: 'counties-low-resolution.geo.json',
+      url: 'counties-low-resolution-with-population.geo.json',
       format: new GeoJSON()
     });
     return new VectorLayer({
@@ -260,6 +260,7 @@ class CountiesMap extends Component {
     let confirmed = 0;
     let opacity = 0.4;
     let title = feature.get('name');
+    let population = feature.get('population');
 
     if(data !== undefined && data !== null) {
       confirmed = data.confirmed;
@@ -268,7 +269,7 @@ class CountiesMap extends Component {
 
     return new Style({
       fill: new Fill({
-        color: MapUtils.calculateColor(this.maxGeneralConfirmed, confirmed, opacity)
+        color: MapUtils.calculateColor(population, confirmed, opacity)
       }),
       stroke: new Stroke({
         color: 'rgba(0, 0, 0, 0.5)',

@@ -67,8 +67,8 @@ public class Covid19DailyStatisticUtilsController {
 
         MatchOperation matchOperation =
             match(
-                Criteria.where("date").gte(startDate)
-                    .andOperator(Criteria.where("date").lte(endDate))
+                Criteria.where("day").gte(startDate)
+                    .andOperator(Criteria.where("day").lte(endDate))
             );
 
         ProjectionOperation projectionOperation =
@@ -108,8 +108,8 @@ public class Covid19DailyStatisticUtilsController {
         MatchOperation matchOperation =
             match(
                 new Criteria().andOperator(
-                    Criteria.where("date").gte(startDate),
-                    Criteria.where("date").lte(endDate),
+                    Criteria.where("day").gte(startDate),
+                    Criteria.where("day").lte(endDate),
                     Criteria.where("countryCode").is(countryCode)
                 )
             );
