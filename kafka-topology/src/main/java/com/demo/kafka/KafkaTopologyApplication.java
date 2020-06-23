@@ -22,6 +22,8 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.messaging.handler.annotation.SendTo;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +57,7 @@ public class KafkaTopologyApplication {
                 .map((key, value) -> new KeyValue<>(null, DailyStatistics.builder()
                         .datasource(value.getDatasource())
                         .countryCode(value.getCountryCode())
-                        .day(value.getDay())
+                        .day(parseDay(value.getDay()))
                         .confirmed(value.getConfirmed())
                         .deaths(value.getDeaths())
                         .recovered(value.getRecovered())
@@ -63,6 +65,7 @@ public class KafkaTopologyApplication {
     }
 
     interface KStreamProcessorWithBranches {
+
         @Input("countries1")
         KStream<?, ?> countries1();
 
@@ -75,12 +78,13 @@ public class KafkaTopologyApplication {
         @Output("aggregated-statistic")
         KStream<?, ?> aggregated();
 
+
     }
 
     private AggregatedCountry aggregateAmount(String key, Country country, AggregatedCountry aggregatedCountry) {
 
         Optional<DailyStatistics> daily = aggregatedCountry.getDailyStatistics().stream()
-                .filter(dailyStatistic -> dailyStatistic.getDay().equals(country.getDay()))
+                .filter(dailyStatistic -> dailyStatistic.getDay().equals(parseDay(country.getDay())))
                 .findFirst();
 
         if (daily.isPresent()) {
@@ -101,7 +105,7 @@ public class KafkaTopologyApplication {
                     .confirmed(country.getConfirmed())
                     .deaths(country.getDeaths())
                     .recovered(country.getRecovered())
-                    .day(country.getDay())
+                    .day(parseDay(country.getDay()))
                     .build());
 
             aggregatedCountry.setCountryCode(country.getCountryCode());
@@ -109,7 +113,6 @@ public class KafkaTopologyApplication {
             aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() + Integer.parseInt(country.getRecovered()));
             aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() + Integer.parseInt(country.getDeaths()));
             aggregatedCountry.setDatasource(aggregatedCountry.getDatasource());
-            log.info("Inside aggregateAmount + " + aggregatedCountry);
         }
         return aggregatedCountry;
     }
@@ -133,10 +136,9 @@ public class KafkaTopologyApplication {
                 .confirmed(country.getConfirmed())
                 .deaths(country.getDeaths())
                 .recovered(country.getRecovered())
-                .day(country.getDay())
+                .day(parseDay(country.getDay()))
                 .datasource(country.getDatasource())
                 .build());
-        log.info("Inside dailyStatistics + " + dailyStatistics);
         return dailyStatistics;
     }
 
@@ -148,5 +150,9 @@ public class KafkaTopologyApplication {
         return Materialized.<K, V>as(Stores.persistentKeyValueStore(storeName))
                 .withKeySerde(keySerde)
                 .withValueSerde(valueSerde);
+    }
+
+    private LocalDate parseDay(String day) {
+        return LocalDate.parse(day, DateTimeFormatter.ofPattern("M/dd/yy"));
     }
 }
