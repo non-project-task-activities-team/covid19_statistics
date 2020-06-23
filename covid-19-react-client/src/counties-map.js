@@ -22,7 +22,7 @@ class CountiesMap extends Component {
     this.setMapRef = element => {
       this.mapRef = element;
     };
-    this.centerCoordinates = [31.46120621875, 48.5480583823923];
+    this.centerCoordinates = [16.07644158039998, 48.07883731198575];
     this.showPopupInFeatureCenter = false;
     this.popupIsShown = false;
     this.mapIsReady = false;
@@ -85,7 +85,7 @@ class CountiesMap extends Component {
       target: ReactDOM.findDOMNode(this.mapRef),
       view: new View({
         center: fromLonLat(self.centerCoordinates),
-        zoom: 6,
+        zoom: 4.5,
         minZoom: 2.5,
         maxZoom: 20
       })
@@ -102,6 +102,8 @@ class CountiesMap extends Component {
     });
 
     self.countiesMap.on('singleclick', function (evt) {
+      console.log(self.getCurrentMapCenter());
+      
       let coordinate;
       let pixel = self.countiesMap.getEventPixel(evt.originalEvent);
       let feature = self.countiesMap.forEachFeatureAtPixel(pixel, f => f);

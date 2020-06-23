@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -48,6 +49,13 @@ public class Covid19GeneralStatisticUtilsController {
     @GetMapping("/{id}")
     public Mono<Covid19GeneralStatistic> getCovid19GeneralStatistic(@PathVariable ObjectId id) {
         return covid19GeneralStatisticRepository.findById(id);
+    }
+
+    @GetMapping("/country_code")
+    public Mono<Covid19GeneralStatistic> getCovid19GeneralStatisticByCountryCode(
+        @RequestParam String countryCode
+    ) {
+        return covid19GeneralStatisticRepository.findFirstByCountryCode(countryCode);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -9,4 +9,5 @@ public interface Covid19GeneralStatisticRepository
     extends ReactiveMongoRepository<Covid19GeneralStatistic, ObjectId> {
 
     Mono<Covid19GeneralStatistic> findFirstByOrderByConfirmedDesc();
+    Mono<Covid19GeneralStatistic> findFirstByCountryCode(String countryCode);
 }
