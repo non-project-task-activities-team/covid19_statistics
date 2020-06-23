@@ -139,6 +139,7 @@ public class KafkaTopologyApplication {
         aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() - Integer.parseInt(statistic.getDeaths())
                 + Integer.parseInt(country.getDeaths()));
 
+        statistic.setCountryCode(country.getCountryCode());
         statistic.setConfirmed(country.getConfirmed());
         statistic.setRecovered(country.getRecovered());
         statistic.setDeaths(country.getDeaths());
