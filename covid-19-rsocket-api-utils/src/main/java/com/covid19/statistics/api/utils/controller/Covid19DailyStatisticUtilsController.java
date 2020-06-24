@@ -12,7 +12,6 @@ import com.covid19.statistics.api.utils.repository.Covid19DailyStatisticReposito
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -54,7 +53,7 @@ public class Covid19DailyStatisticUtilsController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Covid19DailyStatistic> getCovid19DailyStatisticById(@PathVariable UUID id) {
+    public Mono<Covid19DailyStatistic> getCovid19DailyStatisticById(@PathVariable String id) {
         return covid19DailyStatisticRepository.findById(id);
     }
 
@@ -68,8 +67,8 @@ public class Covid19DailyStatisticUtilsController {
 
         MatchOperation matchOperation =
             match(
-                Criteria.where("date").gte(startDate)
-                    .andOperator(Criteria.where("date").lte(endDate))
+                Criteria.where("day").gte(startDate)
+                    .andOperator(Criteria.where("day").lte(endDate))
             );
 
         ProjectionOperation projectionOperation =
@@ -109,8 +108,8 @@ public class Covid19DailyStatisticUtilsController {
         MatchOperation matchOperation =
             match(
                 new Criteria().andOperator(
-                    Criteria.where("date").gte(startDate),
-                    Criteria.where("date").lte(endDate),
+                    Criteria.where("day").gte(startDate),
+                    Criteria.where("day").lte(endDate),
                     Criteria.where("countryCode").is(countryCode)
                 )
             );
@@ -144,7 +143,6 @@ public class Covid19DailyStatisticUtilsController {
     public Mono<Covid19DailyStatistic> saveCovid19DailyStatistic(
         @RequestBody Covid19DailyStatistic covid19DailyStatistic
     ) {
-        covid19DailyStatistic.setId(UUID.randomUUID());
         covid19DailyStatistic.setLastModifiedAt(LocalDateTime.now());
         return covid19DailyStatisticRepository.save(covid19DailyStatistic);
     }
@@ -156,17 +154,14 @@ public class Covid19DailyStatisticUtilsController {
         List<Covid19DailyStatistic> covid19DailyStatisticList =
             covid19DailyStatistic.getData();
 
-        covid19DailyStatisticList.forEach(s -> {
-            s.setId(UUID.randomUUID());
-            s.setLastModifiedAt(LocalDateTime.now());
-        });
+        covid19DailyStatisticList.forEach(s -> s.setLastModifiedAt(LocalDateTime.now()));
 
         return covid19DailyStatisticRepository.saveAll(covid19DailyStatisticList);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<Covid19DailyStatistic> updateCovid19DailyStatistic(
-        @PathVariable UUID id,
+        @PathVariable String id,
         @Valid @RequestBody Covid19DailyStatistic covid19DailyStatistic
     ) {
         covid19DailyStatistic.setId(id);
@@ -180,7 +175,7 @@ public class Covid19DailyStatisticUtilsController {
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> deleteCovid19DailyStatisticById(@PathVariable UUID id) {
+    public Mono<Void> deleteCovid19DailyStatisticById(@PathVariable String id) {
         return covid19DailyStatisticRepository.deleteById(id);
     }
 }

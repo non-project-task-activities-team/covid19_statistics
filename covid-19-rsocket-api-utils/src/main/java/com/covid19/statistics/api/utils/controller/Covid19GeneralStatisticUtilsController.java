@@ -6,8 +6,8 @@ import com.covid19.statistics.api.utils.repository.Covid19GeneralStatisticReposi
 import com.covid19.statistics.api.utils.service.Covid19StatisticService;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import javax.validation.Valid;
+import org.bson.types.ObjectId;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -46,15 +47,21 @@ public class Covid19GeneralStatisticUtilsController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Covid19GeneralStatistic> getCovid19GeneralStatistic(@PathVariable UUID id) {
+    public Mono<Covid19GeneralStatistic> getCovid19GeneralStatistic(@PathVariable ObjectId id) {
         return covid19GeneralStatisticRepository.findById(id);
+    }
+
+    @GetMapping("/country_code")
+    public Mono<Covid19GeneralStatistic> getCovid19GeneralStatisticByCountryCode(
+        @RequestParam String countryCode
+    ) {
+        return covid19GeneralStatisticRepository.findFirstByCountryCode(countryCode);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<Covid19GeneralStatistic> saveCovid19GeneralStatistic(
         @Valid @RequestBody Covid19GeneralStatistic covid19GeneralStatistic
     ) {
-        covid19GeneralStatistic.setId(UUID.randomUUID());
         covid19GeneralStatistic.setLastModifiedAt(LocalDateTime.now());
         return covid19GeneralStatisticRepository.save(covid19GeneralStatistic);
     }
@@ -66,17 +73,14 @@ public class Covid19GeneralStatisticUtilsController {
         List<Covid19GeneralStatistic> covid19GeneralStatisticList =
             covid19GeneralStatistic.getData();
 
-        covid19GeneralStatisticList.forEach(s -> {
-            s.setId(UUID.randomUUID());
-            s.setLastModifiedAt(LocalDateTime.now());
-        });
+        covid19GeneralStatisticList.forEach(s -> s.setLastModifiedAt(LocalDateTime.now()));
 
         return covid19GeneralStatisticRepository.saveAll(covid19GeneralStatisticList);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<Covid19GeneralStatistic> updateCovid19GeneralStatistic(
-        @PathVariable UUID id,
+        @PathVariable String id,
         @Valid @RequestBody Covid19GeneralStatistic covid19GeneralStatistic
     ) {
         covid19GeneralStatistic.setId(id);
@@ -90,7 +94,7 @@ public class Covid19GeneralStatisticUtilsController {
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> deleteCovid19GeneralStatisticById(@PathVariable UUID id) {
+    public Mono<Void> deleteCovid19GeneralStatisticById(@PathVariable ObjectId id) {
         return covid19GeneralStatisticRepository.deleteById(id);
     }
 }

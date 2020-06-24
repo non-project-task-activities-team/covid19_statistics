@@ -68,6 +68,6 @@ public class Covid19GeneralStatisticServiceImpl implements Covid19GeneralStatist
     }
 
     private Criteria buildCriteria(OperationType operationType) {
-        return new Criteria(OPERATION_TYPE_CRITERIA_KEY).is(operationType.getValue());
+        return Criteria.where(OPERATION_TYPE_CRITERIA_KEY).is(operationType.getValue());
     }
 }

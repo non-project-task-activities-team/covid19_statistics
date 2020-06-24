@@ -18,19 +18,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Document(collection = "daily_statistic")
 @CompoundIndexes({
-        @CompoundIndex(def = "{'day':-1, 'country_code':-1}", name = "compound_index")
+        @CompoundIndex(def = "{'day':-1, 'countryCode':-1}", name = "compound_index")
 })
 public class DailyStatistic implements Statistic {
 
     @Id
     private String id;
-    @Field("country_code")
     private String countryCode;
     private LocalDate day;
     private String datasource;
     private Integer confirmed;
     private Integer deaths;
     private Integer recovered;
-    @Field("last_modified_at")
     private LocalDateTime lastModifiedAt;
 }

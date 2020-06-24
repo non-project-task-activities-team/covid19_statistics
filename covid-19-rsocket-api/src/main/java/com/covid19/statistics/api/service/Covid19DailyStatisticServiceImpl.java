@@ -68,8 +68,8 @@ public class Covid19DailyStatisticServiceImpl implements Covid19DailyStatisticSe
     ) {
         MatchOperation matchOperation =
             match(
-                Criteria.where("date").gte(startDate)
-                    .andOperator(Criteria.where("date").lte(endDate))
+                Criteria.where("day").gte(startDate)
+                    .andOperator(Criteria.where("day").lte(endDate))
             );
 
         ProjectionOperation projectionOperation =

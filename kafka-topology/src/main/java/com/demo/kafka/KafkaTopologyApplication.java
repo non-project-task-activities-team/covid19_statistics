@@ -22,6 +22,8 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.messaging.handler.annotation.SendTo;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +57,7 @@ public class KafkaTopologyApplication {
                 .map((key, value) -> new KeyValue<>(null, DailyStatistics.builder()
                         .datasource(value.getDatasource())
                         .countryCode(value.getCountryCode())
-                        .day(value.getDay())
+                        .day(parseDay(value.getDay()))
                         .confirmed(value.getConfirmed())
                         .deaths(value.getDeaths())
                         .recovered(value.getRecovered())
@@ -63,6 +65,7 @@ public class KafkaTopologyApplication {
     }
 
     interface KStreamProcessorWithBranches {
+
         @Input("countries1")
         KStream<?, ?> countries1();
 
@@ -75,41 +78,19 @@ public class KafkaTopologyApplication {
         @Output("aggregated-statistic")
         KStream<?, ?> aggregated();
 
+
     }
 
     private AggregatedCountry aggregateAmount(String key, Country country, AggregatedCountry aggregatedCountry) {
 
         Optional<DailyStatistics> daily = aggregatedCountry.getDailyStatistics().stream()
-                .filter(dailyStatistic -> dailyStatistic.getDay().equals(country.getDay()))
+                .filter(dailyStatistic -> dailyStatistic.getDay().equals(parseDay(country.getDay())))
                 .findFirst();
 
         if (daily.isPresent()) {
-            DailyStatistics statistic = daily.get();
-            aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() - Integer.parseInt(statistic.getConfirmed())
-                    + Integer.parseInt(country.getConfirmed()));
-            aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() - Integer.parseInt(statistic.getRecovered())
-                    + Integer.parseInt(country.getRecovered()));
-            aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() - Integer.parseInt(statistic.getDeaths())
-                    + Integer.parseInt(country.getDeaths()));
-
-            statistic.setConfirmed(country.getConfirmed());
-            statistic.setRecovered(country.getRecovered());
-            statistic.setDeaths(country.getDeaths());
-
+            populateDaily(country, aggregatedCountry, daily);
         } else {
-            aggregatedCountry.getDailyStatistics().add(DailyStatistics.builder()
-                    .confirmed(country.getConfirmed())
-                    .deaths(country.getDeaths())
-                    .recovered(country.getRecovered())
-                    .day(country.getDay())
-                    .build());
-
-            aggregatedCountry.setCountryCode(country.getCountryCode());
-            aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() + Integer.parseInt(country.getConfirmed()));
-            aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() + Integer.parseInt(country.getRecovered()));
-            aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() + Integer.parseInt(country.getDeaths()));
-            aggregatedCountry.setDatasource(aggregatedCountry.getDatasource());
-            log.info("Inside aggregateAmount + " + aggregatedCountry);
+            populateIfNotPresent(country, aggregatedCountry);
         }
         return aggregatedCountry;
     }
@@ -133,10 +114,9 @@ public class KafkaTopologyApplication {
                 .confirmed(country.getConfirmed())
                 .deaths(country.getDeaths())
                 .recovered(country.getRecovered())
-                .day(country.getDay())
+                .day(parseDay(country.getDay()))
                 .datasource(country.getDatasource())
                 .build());
-        log.info("Inside dailyStatistics + " + dailyStatistics);
         return dailyStatistics;
     }
 
@@ -148,5 +128,39 @@ public class KafkaTopologyApplication {
         return Materialized.<K, V>as(Stores.persistentKeyValueStore(storeName))
                 .withKeySerde(keySerde)
                 .withValueSerde(valueSerde);
+    }
+
+    private void populateDaily(Country country, AggregatedCountry aggregatedCountry, Optional<DailyStatistics> daily) {
+        DailyStatistics statistic = daily.get();
+        aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() - Integer.parseInt(statistic.getConfirmed())
+                + Integer.parseInt(country.getConfirmed()));
+        aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() - Integer.parseInt(statistic.getRecovered())
+                + Integer.parseInt(country.getRecovered()));
+        aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() - Integer.parseInt(statistic.getDeaths())
+                + Integer.parseInt(country.getDeaths()));
+
+        statistic.setCountryCode(country.getCountryCode());
+        statistic.setConfirmed(country.getConfirmed());
+        statistic.setRecovered(country.getRecovered());
+        statistic.setDeaths(country.getDeaths());
+    }
+
+    private LocalDate parseDay(String day) {
+        return LocalDate.parse(day, DateTimeFormatter.ofPattern("M/dd/yy"));
+    }
+
+    private void populateIfNotPresent(Country country, AggregatedCountry aggregatedCountry) {
+        aggregatedCountry.getDailyStatistics().add(DailyStatistics.builder()
+                .confirmed(country.getConfirmed())
+                .deaths(country.getDeaths())
+                .recovered(country.getRecovered())
+                .day(parseDay(country.getDay()))
+                .build());
+
+        aggregatedCountry.setCountryCode(country.getCountryCode());
+        aggregatedCountry.setConfirmed(aggregatedCountry.getConfirmed() + Integer.parseInt(country.getConfirmed()));
+        aggregatedCountry.setRecovered(aggregatedCountry.getRecovered() + Integer.parseInt(country.getRecovered()));
+        aggregatedCountry.setDeaths(aggregatedCountry.getDeaths() + Integer.parseInt(country.getDeaths()));
+        aggregatedCountry.setDatasource(aggregatedCountry.getDatasource());
     }
 }

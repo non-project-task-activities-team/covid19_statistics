@@ -9,8 +9,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.training-task</groupId>
-	<artifactId>data-processor</artifactId>
-	<version>1.0</version>
+	<artifactId>covid-19-data-processor</artifactId>
+	<version>1.0.0</version>
 	<name>data-processor</name>
 	<description>Mongo data processor</description>
 

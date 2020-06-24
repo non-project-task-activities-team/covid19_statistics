@@ -22,11 +22,11 @@ class CountiesMap extends Component {
     this.setMapRef = element => {
       this.mapRef = element;
     };
-    this.centerCoordinates = [31.46120621875, 48.5480583823923];
+    this.centerCoordinates = [16.07644158039998, 48.07883731198575];
     this.showPopupInFeatureCenter = false;
     this.popupIsShown = false;
     this.mapIsReady = false;
-    this.maxBackpresure = 100;
+    this.maxBackpresure = 10000;
 
     this.rSocketClient =
       new ApiRSocketClient(
@@ -70,12 +70,13 @@ class CountiesMap extends Component {
     let self = this;
     let popup = this.initPopup();
 
-    self.rSocketClient.connect().then(() =>
-        self.rSocketClient.getMaxGeneralCovid19Statistic(function (data) {
-          self.maxGeneralConfirmed = data.data.confirmed;
-          console.log("Current max general confirmed: " + self.maxGeneralConfirmed);
-        })
-    );
+    self.connection = 
+      self.rSocketClient.connect().then(() =>
+          self.rSocketClient.getMaxGeneralCovid19Statistic(function (data) {
+            self.maxGeneralConfirmed = data.data.confirmed;
+            console.log("Current max general confirmed: " + self.maxGeneralConfirmed);
+          })
+      );
 
     self.countriesVectorLayer = self.getCountriesVectorLayer();
     self.countiesMap = new Map({
@@ -84,7 +85,7 @@ class CountiesMap extends Component {
       target: ReactDOM.findDOMNode(this.mapRef),
       view: new View({
         center: fromLonLat(self.centerCoordinates),
-        zoom: 6,
+        zoom: 4.5,
         minZoom: 2.5,
         maxZoom: 20
       })
@@ -101,6 +102,8 @@ class CountiesMap extends Component {
     });
 
     self.countiesMap.on('singleclick', function (evt) {
+      console.log(self.getCurrentMapCenter());
+      
       let coordinate;
       let pixel = self.countiesMap.getEventPixel(evt.originalEvent);
       let feature = self.countiesMap.forEachFeatureAtPixel(pixel, f => f);
@@ -148,12 +151,14 @@ class CountiesMap extends Component {
     self.countriesVectorLayer.getSource().on("change", function(e) {
       if(self.countriesVectorLayer.getSource().getState() === "ready" && !self.mapIsReady) {
         let features = self.countriesVectorLayer.getSource().getFeatures();
-        self.rSocketClient.streamGeneralCovid19Statistic(self.maxBackpresure)
-          .subscribe({
-            onSubscribe: sub => self.backpressureCtrl.useSubscription(sub),
-            onNext: payload => self.onNextRSocketStreamHandler(features, payload)
-          });
-        self.mapIsReady = true;
+        self.connection.then(() => {
+          self.rSocketClient.streamGeneralCovid19Statistic(self.maxBackpresure)
+            .subscribe({
+              onSubscribe: sub => self.backpressureCtrl.useSubscription(sub), 
+              onNext: payload => self.onNextRSocketStreamHandler(features, payload)
+            });
+          self.mapIsReady = true;
+        });
       }
     });
   }
@@ -230,7 +235,7 @@ class CountiesMap extends Component {
   getCountriesVectorLayer() {
     let self = this;
     let source = new VectorSource({
-      url: 'counties-low-resolution.geo.json',
+      url: 'counties-low-resolution-with-population.geo.json',
       format: new GeoJSON()
     });
     return new VectorLayer({
@@ -257,6 +262,7 @@ class CountiesMap extends Component {
     let confirmed = 0;
     let opacity = 0.4;
     let title = feature.get('name');
+    let population = feature.get('population');
 
     if(data !== undefined && data !== null) {
       confirmed = data.confirmed;
@@ -265,7 +271,7 @@ class CountiesMap extends Component {
 
     return new Style({
       fill: new Fill({
-        color: MapUtils.calculateColor(this.maxGeneralConfirmed, confirmed, opacity)
+        color: MapUtils.calculateColor(population, confirmed, opacity)
       }),
       stroke: new Stroke({
         color: 'rgba(0, 0, 0, 0.5)',
